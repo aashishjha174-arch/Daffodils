@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daffodils Public School | Memories 2082</title>
+<link rel="icon" href="images\logo.jpeg">
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;600&family=Playfair+Display:italic,wght@0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --glass: rgba(255, 255, 255, 0.1);
+    --gold: #d4af37;
+    --text: #ffffff;
+    --nav-color: #c2f3f3; /* lime/skyblue */
+    --transition: 1.5s ease-in-out;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#000; color:var(--text); font-family:'Montserrat',sans-serif; overflow-x:hidden; }
+
+/* --- Background Slideshow --- */
+#bg-container{position:fixed; inset:0; z-index:-2; background:#000;}
+.bg-slide{position:absolute; inset:-20px; background-size:cover; background-position:center; background-repeat:no-repeat; opacity:0; filter: blur(20px) brightness(0.4) saturate(1.2); transition:opacity 2s ease-in-out;}
+.bg-slide.active{opacity:1;}
+
+/* --- Particles --- */
+#particles{position:fixed; inset:0; z-index:-1; pointer-events:none;}
+.particle{position:absolute; background:white; border-radius:50%; opacity:0.4; animation:floatUp 15s infinite linear;}
+@keyframes floatUp{0%{transform:translateY(110vh) translateX(0); opacity:0;} 50%{opacity:0.5;} 100%{transform:translateY(-10vh) translateX(20px); opacity:0;}}
+
+/* --- Header --- */
+header{text-align:center; padding:60px 20px 20px;}
+.title-container{display:flex; align-items:center; justify-content:center; gap:20px;}
+.school-name{font-family:'Playfair Display',serif; font-size:3.5rem; color:var(--gold); text-shadow:0 0 20px rgba(0,0,0,0.8);}
+.school-logo{height:80px; width:auto; filter: drop-shadow(0 0 10px rgba(212,175,55,0.5)); border-radius:50%;}
+
+/* --- Nav Buttons --- */
+.nav-bar {
+    display:flex; justify-content:center; gap:20px; flex-wrap:wrap;
+    padding:10px 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); position:sticky; top:0; z-index:999;
+}
+.nav-bar a {
+    color: var(--nav-color); text-decoration:none; font-weight:bold; padding:8px 15px; border-radius:20px;
+    transition:0.3s; border:1px solid var(--nav-color);
+}
+.nav-bar a:hover { background: var(--nav-color); color:#000; }
+
+/* --- Search Area --- */
+.search-area{display:flex; justify-content:center; gap:10px; padding:20px; position:sticky; top:60px; z-index:100; backdrop-filter:blur(5px);}
+#studentSearch{width:100%; max-width:500px; padding:15px 25px; border-radius:30px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.6); color:white; backdrop-filter:blur(15px); outline:none;}
+.reset-btn{background:var(--gold); border:none; padding:0 25px; border-radius:30px; cursor:pointer; font-weight:bold; transition:0.3s;}
+
+/* --- Grid & Cards --- */
+.grid-container{display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:30px; padding:40px; max-width:1300px; margin:auto;}
+.card{background:var(--glass); border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:25px; text-align:center; backdrop-filter:blur(10px); transition:0.4s; cursor:pointer;}
+.card:hover{transform:translateY(-10px); border-color:var(--gold);}
+.hidden{display:none;}
+.student-photo{width:120px; height:120px; border-radius:50%; border:3px solid var(--gold); margin-bottom:15px; object-fit:cover;}
+
+/* --- Modal --- */
+#card-overlay{position:fixed; inset:0; background:rgba(0,0,0,0.9); backdrop-filter:blur(15px); display:none; justify-content:center; align-items:center; z-index:10000; opacity:0; transition:opacity 0.5s ease;}
+#card-overlay.active{display:flex; opacity:1;}
+.focused-plate{background:rgba(255,255,255,0.05); border:1px solid var(--gold); border-radius:30px; padding:40px; width:90%; max-width:600px; text-align:center; transform:scale(0.8); transition:0.5s cubic-bezier(0.175,0.885,0.32,1.275);}
+#card-overlay.active .focused-plate{transform:scale(1);}
+.close-btn{position:absolute; top:20px; right:30px; font-size:3rem; color:white; cursor:pointer;}
+
+/* --- Responsive --- */
+@media (max-width:600px){
+.school-name{font-size:1.8rem !important; letter-spacing:2px;}
+.school-logo{height:50px !important;}
+.grid-container{grid-template-columns:1fr !important; padding:20px; gap:20px;}
+.focused-plate{padding:25px 15px !important; width:95% !important; max-height:85vh; overflow-y:auto;}
+.focused-plate h2{font-size:1.8rem !important;}
+.focused-plate img{width:140px !important; height:140px !important;}
+.search-area{flex-direction:row; padding:10px;}
+#studentSearch{padding:12px 15px; font-size:0.9rem;}
+.reset-btn{padding:0 15px; font-size:0.8rem;}
+.nav-bar{gap:10px; justify-content:center; flex-wrap:wrap;}
+.nav-bar a{padding:6px 10px; font-size:0.9rem;}
+}
+@media (min-width:601px) and (max-width:1024px){
+.grid-container{grid-template-columns:repeat(2,1fr) !important;}
+}
+</style>
+</head>
+<body>
+
+<div id="card-overlay">
+    <span class="close-btn">&times;</span>
+    <div class="focused-plate" id="modal-content"></div>
+</div>
+
+<div id="bg-container"></div>
+<div id="particles"></div>
+
+<header>
+    <div class="title-container">
+        <h1 class="school-name">DAFFODILS PUBLIC SCHOOL</h1>
+        <img src="images/logo.jpeg" alt="Logo" class="school-logo" onerror="this.style.display='none'">
+    </div>
+    <p style="letter-spacing:5px; margin-top:10px; opacity:0.8;">THE FINAL FAREWELL • BATCH 2082</p>
+</header>
+
+<!-- NAV BAR -->
+<div class="nav-bar">
+    <a href="student.html">Batch Members</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="review.html">Review</a>
+    <a href="ourmemories.html">Our Memories</a>
+</div>
+
+<!-- Search -->
+<div class="search-area">
+    <input type="text" id="studentSearch" placeholder="Search name or roll number..." onkeyup="filterStudents()">
+    <button class="reset-btn" onclick="resetSearch()">Reset</button>
+</div>
+
+<main class="grid-container" id="mainGrid"></main>
+
+<audio id="bgMusic" loop>
+    <source src="farewell.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const students=[
+
+{name:"Shailshree",roll:"1",info:"A brilliant mind with endless potential.",bio:"Known for her achievements in studies and skills, from coming 1st to getting selected in drawing competitions, from speeches to debates, she slays everywhere..",photo:"images/female.jpg"},
+
+{name:"Satyam Jha",roll:"2",info:"The most comfortable guy in the batch!",bio:"Known for making everyone laugh even in the toughest times. His humor and energy were the heartbeat of Class 10. A great anchor, artist and speech compitions winner",photo:"images/satyam.jpeg"},
+
+{name:"Prem Ranjan Ray",roll:"3",info:"Calm, composed, and extremely talented.",bio:"known for his calm perspective. A great friend and a very talented guy.",photo:"images/prem.jpeg"},
+
+{name:"Ansh Panday(Pandu)",roll:"4",info:"Always excited, always alive.",bio:"The spark plug of the class. Full of excitement, playful by nature, and armed with elite humor. If laughter had a roll number, it’d be his.",photo:"images/ansh.jpeg"},
+
+{name:"Kriti Acharya",roll:"5",info:"Calm soul with a sharp mind.",bio:"Well-maintained in every sense — from notes to nature. Calm, composed, and consistently strong in studies. Quiet confidence, loud results.",photo:"images/female.jpg"},
+
+{name:"Aarav Jha(Aaree)",roll:"6",info:"Born to befriend numbers.",bio:"A true mathematician by Sudip sir. Known for his strong grip on studies and a mind that solves equations like poetry.",photo:"images/aarav.jpeg"},
+
+{name:"Ankit Thakur",roll:"7",info:"Friendly vibes, focused goals.",bio:"Well-maintained, approachable, and academically solid. A friendly presence who balanced studies and social life like a pro.",photo:"images/ankit.jpeg"},
+
+{name:"Aayushi Karna",roll:"8",info:"Grace, energy, and endless potential.",bio:"Calm yet playful, disciplined yet fully energetic. Excels in studies, shines in dance and singing, and carries a spark that lights up every room.",photo:"images/female.jpg"},
+
+{name:"Ansh Ray",roll:"9",info:"Maths beast with teacher-approved aura.",bio:"A favorite of Pawan sir and Sudip sir for a reason. Can crack almost any maths problem with ease. Logic lives rent-free in his head.",photo:"images/anshray.jpeg"},
+
+{name:"Prince Yadav(X-Ten)",roll:"10",info:"Brains, humor, and back-bench beats.",bio:"Strong in studies, sharp with humor, and legendary for producing unexpected sounds from the back benches. Academic focus with comic relief.",photo:"images/prince.jpeg"},
+{name:"Aarush Thakur",roll:"11",info:"Friendly leader with a heart of gold.",bio:"The legendary 'Mota Bhai' of the class. Full of charm, always approachable, and a natural leader who makes everyone feel included.",photo:"images/aarush.jpeg"},
+
+{name:"Riya Panday",roll:"12",info:"Calm, composed, and future-ready.",bio:"Well-maintained and steady, with the potential to achieve greatness. Strong in studies, graceful in presence, and a silent force of inspiration.",photo:"images/female.jpg"},
+
+{name:"Aayush Thakur",roll:"13",info:"Excited and Bharti sir fav. guy, adventure ready.",bio:"The class clown meets thrill-seeker. Known for humor, always pumped for unique adventures, and bringing energy wherever he goes.",photo:"images/aayush.jpeg"},
+
+{name:"Aaditya Panday",roll:"14",info:"Calm mathematician with sharp mind.",bio:"Excels in mathematics and studies, well-maintained, and carries a quiet calmness that makes him reliable and respected by all.",photo:"images/aaditya.jpeg"},
+
+{name:"Amishi Panday",roll:"15",info:"Peaceful charm with brains.",bio:"Known for her calm, peaceful aura and charming personality. Strong in studies, disciplined, and always well-presented.",photo:"images/female.jpg"},
+
+{name:"Aashish Jha",roll:"16",info:"Web wizard.",bio:"Master of web development, coding enthusiast, and visionary thinker.Has a very worst uck in lovelife..",photo:"images/aashish.jpeg"},
+
+{name:"Siddharth Yadav",roll:"17",info:"Cheerful romantic and aesthetic 'bouna' guy.",bio:"Full of excitement and laughter, loves stories of all kinds. Brings cheer and aesthetic vibes to the class, making everyday memorable.",photo:"images/siddharth.jpeg"},
+
+{name:"Prince Kr. Yadav",roll:"18",info:"Mathematics master and fearless spirit.(ganja)",bio:"Crazy about maths, never backs down from an argument, extremely friendly, and always ready to take on any new challenge with excitement.",photo:"images/ganja.jpeg"},
+
+{name:"Anukalp Thakur",roll:"19",info:"Science crazy with calm energy.",bio:"Loves everything science — theory, numericals, experiments. Peaceful yet full of excitement, always curious and ready to explore the unknown.",photo:"images/anukalp.jpeg"},
+
+{name:"Shreya Rani Sah",roll:"20",info:"Calm, smart, and graceful.",bio:"Peaceful, well-maintained, and academically strong. Her calm aura and sharp mind make her a role model for balance and focus.",photo:"images/female.jpg"},
+
+{name:"Durgesh Nandini",roll:"21",info:"Cultural queen with endless talent.",bio:"Friendly, artistic, and poetic soul. Fluent in English, shines in singing and dancing, and carries rich cultural and religious vibes everywhere she goes.",photo:"images/female.jpg"},
+
+{name:"Priya Sah",roll:"22",info:"Calm, smart, future-ready.",bio:"Well-maintained and composed, with the potential to achieve great heights. Strong in studies and quietly confident, a gem in every way.",photo:"images/female.jpg"},
+
+{name:"Samridh Karn",roll:"23",info:"Playful charm with endless energy.",bio:"Friendly, charming, and full of excitement. Has most no. of girlfriends Always ready to bring fun to the class and make everyone smile, a true vibe booster.",photo:"images/samridh.jpeg"},
+
+{name:"Ashwin Yadav",roll:"24",info:"Charming sportsman with unique style.(Pele)",bio:"Known for friendliness, charm, and a one-of-a-kind aura. Excels in sports, makes friends effortlessly, and leaves a memorable impression everywhere.",photo:"images/ashwin.jpeg"},
+
+{name:"Dhiraj Mahato",roll:"25",info:"Friendly brain with style.",bio:"Well-maintained, charming, and strong in studies. A dependable friend with a warm personality and a sharp mind.",photo:"images/dhiraj.jpeg"},
+
+{name:"Sneha Sah",roll:"26",info:"Artist, charm, and brains combined.",bio:"The class artist with amazing artworks. Friendly, well-maintained, charming, and academically strong. Creativity flows through her everywhere.",photo:"images/female.jpg"},
+
+{name:"Raj Sharma",roll:"27",info:"Jokes, charm, and backbench energy.( Shaiyari expert)",bio:"Master of funny jokes and pickup lines. Well-maintained, charming, and always ready to make the class laugh.",photo:"images/raj.jpeg"},
+
+{name:"Sumit Sah",roll:"28",info:"Brains, charm, and future star.",bio:"Friendly, well-maintained, academically strong, and full of potential. Always ready to do something great and inspire everyone around.",photo:"images/sumit.jpeg"},
+
+{name:"Aaditya Jha",roll:"29",info:"Cricket craze with charm.(Bittu Bhai)",bio:"Charming and well-maintained, a cricket lover with a popular YouTube channel. Skilled in cricket and full of energy, always the hype of the game.",photo:"images/aadityajha.jpeg"},
+
+{name:"Suraj Ray",roll:"30",info:"Friendly joker with a big heart.",bio:"Charming and helpful, cracks the best jokes, and always there for anyone in need. Humor and friendliness wrapped in one unforgettable persona. Sometime becomes hindu, and sometime muslim.",photo:"images/suraj.jpeg"},
+
+{name:"Dipak Sah",roll:"31",info:"Charming, playful, mask man.",bio:"Always playful, full of charm, and known as the 'mask man', 'Helmet wala' for his mysterious vibe. Well-maintained and always ready to bring fun.",photo:"images/dipak.jpeg"},
+
+{name:"Christina Yadav",roll:"32",info:"Not Given",bio:"Not Given",photo:"images/female.jpg"},
+
+{name:"Yogesh Yadav",roll:"33",info:"Charming, helpful, class magnet.",bio:"Helpful, charmful, and the main target of everyone's admiration. Brings positivity and is always ready to assist friends.",photo:"images/yogesh.jpeg"},
+
+{name:"Prince Mishra",roll:"34",info:"Religious, well-maintained, social studies star.",bio:"Deeply religious and well-maintained, excels in social studies and political discussions. A calm, wise, and respected presence in class.",photo:"images/mishra.jpeg"},
+
+{name:"Sahil Sah",roll:"35",info:"Charming, friendly, mannered.",bio:"Charming, friendly, and mannered. Huge devotee of Goddess Rajdevi Mata, balancing spirituality with his warm, approachable personality.",photo:"images/sahil.jpeg"},
+
+{name:"Anshu Yadav",roll:"36",info:"Not Given",bio:"Not Given",photo:"images/female.jpg"},
+
+{name:"Sangam Sah",roll:"37",info:"Not Given",bio:"Not Given",photo:"images/female.jpg"},
+
+{name:"Sneha Roy",roll:"38",info:"Not Given",bio:"Not Given",photo:"images/female.jpg"},
+
+{name:"Swikriti Thapa",roll:"39",info:"Not Given",bio:"Not Given",photo:"images/female.jpg"},
+
+{name:"Ritu Yadav",roll:"40",info:"Not Given",bio:"Not Given",photo:"images/female.jpg"},
+
+{name:"Boby Chaudhary",roll:"41",info:"Charming, playful, friendly.",bio:"Charming, friendly, and playful. Always excited for new adventures and activities, spreading energy and fun everywhere.",photo:"images/female.jpg"},
+
+{name:"Anuranjan Raj Sah",roll:"42",info:"Absent legend.",bio:"Famous for being the number one absentee. Only appears during exams or rare weeks, but still leaves a mark with his class presence.",photo:"images/anuranjan.jpeg"},
+
+];
+const bgImages=['images/bg.jpeg','images/bg4.jpeg','images/bg2.jpeg'];
+
+function setupBackgrounds(){const container=document.getElementById('bg-container');container.innerHTML='';bgImages.forEach((img,index)=>{const div=document.createElement('div');div.className=`bg-slide ${index===0?'active':''}`;div.style.backgroundImage=`url('${img}')`;container.appendChild(div);});let current=0;setInterval(()=>{const slides=document.querySelectorAll('.bg-slide');if(slides.length>0){slides[current].classList.remove('active');current=(current+1)%slides.length;slides[current].classList.add('active');}},6000);}
+function createParticles(){const container=document.getElementById('particles');container.innerHTML='';for(let i=0;i<40;i++){const p=document.createElement('div');p.className='particle';const size=Math.random()*4+2;p.style.width=`${size}px`;p.style.height=`${size}px`;p.style.left=Math.random()*100+'vw';p.style.animationDuration=(Math.random()*10+8)+'s';p.style.animationDelay=(Math.random()*5)+'s';container.appendChild(p);}}
+function openProfile(index){const s=students[index];const overlay=document.getElementById('card-overlay');const content=document.getElementById('modal-content');content.innerHTML=`<img src="${s.photo}" style="width:180px;height:180px;border-radius:50%;border:4px solid var(--gold);object-fit:cover;margin-bottom:20px;" onerror="this.src='https://via.placeholder.com/180'"><h2 style="font-family:'Playfair Display';font-size:2.5rem;color:var(--gold);">${s.name}</h2><p style="letter-spacing:3px;margin:10px 0;font-weight:bold;">ROLL NO: ${s.roll} | BATCH 2082</p><p style="font-style:italic;color:#ccc;margin-bottom:20px;">"${s.info}"</p><div style="height:1px;background:rgba(212,175,55,0.3);margin:20px 0;"></div><p style="line-height:1.6;font-size:1rem;opacity:0.9;">${s.bio}</p>`;overlay.style.display='flex';setTimeout(()=>overlay.classList.add('active'),10);}
+function closeProfile(){const overlay=document.getElementById('card-overlay');overlay.classList.remove('active');setTimeout(()=>overlay.style.display='none',500);}
+function render(){const grid=document.getElementById('mainGrid');grid.innerHTML=students.map((s,index)=>`<div class="card" data-name="${s.name}" data-roll="${s.roll}" onclick="openProfile(${index})"><img src="${s.photo}" class="student-photo" onerror="this.src='https://via.placeholder.com/150'"><h3>${s.name}</h3><p style="color:var(--gold);margin:5px 0;">Roll No: ${s.roll}</p><p style="font-size:0.8rem;opacity:0.7;">Click to see memories</p></div>`).join('');}
+function filterStudents(){const val=document.getElementById('studentSearch').value.toLowerCase();document.querySelectorAll('.card').forEach(card=>{const match=card.dataset.name.toLowerCase().includes(val)||card.dataset.roll.includes(val);card.classList.toggle('hidden',!match);});}
+function resetSearch(){document.getElementById('studentSearch').value='';filterStudents();}
+function init(){setupBackgrounds();createParticles();render();const music=document.getElementById('bgMusic');music.play().catch(e=>console.log("Music wait for user interaction"));}
+
+document.querySelector('.close-btn').addEventListener('click',closeProfile);
+document.getElementById('card-overlay').addEventListener('click',closeProfile);
+document.querySelector('.focused-plate').addEventListener('click',e=>e.stopPropagation());
+window.onload=init;
+</script>
+<script>
+const music = document.getElementById("bgMusic");
+
+// try autoplay if already unlocked
+if (sessionStorage.getItem("musicUnlocked") === "true") {
+    music.volume = 0.6;
+    music.play().catch(()=>{});
+}
+
+// universal unlock on first interaction
+function unlockMusic() {
+    if (!music.paused) return;
+
+    music.volume = 0.6;
+    music.play().then(() => {
+        sessionStorage.setItem("musicUnlocked", "true");
+        document.removeEventListener("click", unlockMusic);
+        document.removeEventListener("touchstart", unlockMusic);
+    }).catch(()=>{});
+}
+
+// listen for first interaction
+document.addEventListener("click", unlockMusic);
+document.addEventListener("touchstart", unlockMusic);
+</script>
+
+</body>
+</html>

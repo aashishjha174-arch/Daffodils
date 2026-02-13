@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daffodils Public School | Dashboard 2082</title>
+<link rel="icon" href="images\logo.jpeg">
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;600&family=Playfair+Display:italic,wght@0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --glass: rgba(255, 255, 255, 0.1);
+    --gold: #d4af37;
+    --text: #ffffff;
+    --nav-color: #c2f3f3;
+    --transition: 1.5s ease-in-out;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#000; color:var(--text); font-family:'Montserrat',sans-serif; overflow-x:hidden; }
+
+/* --- Background Slideshow --- */
+#bg-container{position:fixed; inset:0; z-index:-2; background:#000;}
+.bg-slide{position:absolute; inset:-20px; background-size:cover; background-position:center; background-repeat:no-repeat; opacity:0; filter: blur(20px) brightness(0.4) saturate(1.2); transition:opacity 2s ease-in-out;}
+.bg-slide.active{opacity:1;}
+@media (max-width:600px){
+.school-name{font-size:1.8rem !important; letter-spacing:2px;}
+.school-logo{height:50px !important;}
+.grid-container{grid-template-columns:1fr !important; padding:20px; gap:20px;}
+.focused-plate{padding:25px 15px !important; width:95% !important; max-height:85vh; overflow-y:auto;}
+.focused-plate h2{font-size:1.8rem !important;}
+.focused-plate img{width:140px !important; height:140px !important;}
+.search-area{flex-direction:row; padding:10px;}
+#studentSearch{padding:12px 15px; font-size:0.9rem;}
+.reset-btn{padding:0 15px; font-size:0.8rem;}
+.nav-bar{gap:10px; justify-content:center; flex-wrap:wrap;}
+.nav-bar a{padding:6px 10px; font-size:0.9rem;}
+}
+@media (min-width:601px) and (max-width:1024px){
+.grid-container{grid-template-columns:repeat(2,1fr) !important;}
+}
+/* --- Floating Particles --- */
+#particles{position:fixed; inset:0; z-index:-1; pointer-events:none;}
+.particle{position:absolute; background:white; border-radius:50%; opacity:0.4; animation:floatUp 15s infinite linear;}
+@keyframes floatUp{0%{transform:translateY(110vh) translateX(0); opacity:0;} 50%{opacity:0.5;} 100%{transform:translateY(-10vh) translateX(20px); opacity:0;}}
+
+/* --- Header & Logo --- */
+header{text-align:center; padding:60px 20px 20px;}
+.title-container{display:flex; align-items:center; justify-content:center; gap:20px;}
+.school-name{font-family:'Playfair Display',serif; font-size:3.5rem; color:var(--gold); text-shadow:0 0 20px rgba(0,0,0,0.8);}
+.school-logo{height:80px; width:auto; filter: drop-shadow(0 0 10px rgba(212,175,55,0.5)); border-radius:50%;}
+
+/* --- Nav Buttons --- */
+
+/* --- Nav Buttons --- */
+.nav-bar {
+    display:flex; justify-content:center; gap:20px; flex-wrap:wrap;
+    padding:10px 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); position:sticky; top:0; z-index:999;
+}
+.nav-bar a {
+    color: var(--nav-color); text-decoration:none; font-weight:bold; padding:8px 15px; border-radius:20px;
+    transition:0.3s; border:1px solid var(--nav-color);
+}
+.nav-bar a:hover { background: var(--nav-color); color:#000; }
+/* --- Entry Screen --- */
+#entry{position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;justify-content:center;align-items:center;transition:1.5s;text-align:center;padding:20px;}
+.reset-btn{background:var(--gold);border:none;padding:10px 25px;border-radius:30px;cursor:pointer;font-weight:bold;font-size:1.2rem;transition:0.3s;}
+.reset-btn:hover{opacity:0.9;}
+
+/* --- Center Quote --- */
+.center{
+    min-height:calc(100vh - 120px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:30px;
+}
+.glass-box{
+    background:var(--glass);
+    border:1px solid rgba(255,255,255,.1);
+    backdrop-filter:blur(12px);
+    border-radius:30px;
+    padding:45px;
+    max-width:850px;
+}
+.quote{
+    font-family:'Playfair Display',serif;
+    font-size:2rem;
+    line-height:1.6;
+}
+
+/* --- Responsive --- */
+@media (max-width:600px){
+    .school-name{font-size:1.8rem !important; letter-spacing:2px;}
+    .school-logo{height:50px !important;}
+    nav{flex-wrap:wrap;gap:20px;}
+    #entry h1{font-size:1.5rem;}
+    .quote{font-size:1.4rem;}
+}
+</style>
+</head>
+<body>
+<audio id="bgMusic" loop>
+    <source src="farewell.mp3" type="audio/mpeg">
+</audio>
+
+
+<div id="bg-container"></div>
+<div id="particles"></div>
+
+<!-- ENTRY SCREEN -->
+<div id="entry">
+    <h1 style="color: var(--gold); margin-bottom: 20px;">
+        Daffodils Public School Class 10 | 2082 Members ✨
+    </h1>
+<button class="reset-btn" onclick="init()">Enter Memories</button>
+
+</div>
+
+<header>
+    <div class="title-container">
+        <h1 class="school-name">DAFFODILS PUBLIC SCHOOL</h1>
+        <img src="images/logo.jpeg" alt="Logo" class="school-logo" onerror="this.style.display='none'">
+    </div>
+    <p style="letter-spacing:5px; margin-top:10px; opacity:0.8;">THE FINAL FAREWELL • BATCH 2082</p>
+</header>
+
+<div class="nav-bar">
+    <a href="student.html">Batch Members</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="review.html">Review</a>
+    <a href="ourmemories.html"> Our Memories</a>
+</div>
+
+<!-- CENTER QUOTE -->
+<div class="center">
+    <div class="glass-box">
+        <div class="quote">
+            “Somewhere between roll calls and farewell speeches,  
+            we became a memory  
+            that time will never dare to erase.”
+        </div>
+    </div>
+</div>
+
+<script>
+/* ---------------- BACKGROUND ---------------- */
+const bgImages = ['images/bg.jpeg', 'images/bg2.jpeg', 'images/bg4.jpeg'];
+
+function setupBackgrounds(){
+    const container = document.getElementById('bg-container');
+    container.innerHTML='';
+    bgImages.forEach((img,index)=>{
+        const div=document.createElement('div');
+        div.className=`bg-slide ${index===0?'active':''}`;
+        div.style.backgroundImage=`url('${img}')`;
+        container.appendChild(div);
+    });
+    let current=0;
+    setInterval(()=>{
+        const slides=document.querySelectorAll('.bg-slide');
+        slides[current].classList.remove('active');
+        current=(current+1)%slides.length;
+        slides[current].classList.add('active');
+    },6000);
+}
+
+/* ---------------- PARTICLES ---------------- */
+function createParticles(){
+    const container=document.getElementById('particles');
+    container.innerHTML='';
+    for(let i=0;i<40;i++){
+        const p=document.createElement('div');
+        p.className='particle';
+        const size=Math.random()*4+2;
+        p.style.width=`${size}px`;
+        p.style.height=`${size}px`;
+        p.style.left=Math.random()*100+'vw';
+        p.style.animationDuration=(Math.random()*10+8)+'s';
+        p.style.animationDelay=(Math.random()*5)+'s';
+        container.appendChild(p);
+    }
+}
+
+/* ---------------- MUSIC CONTROL ---------------- */
+const music = document.getElementById("bgMusic");
+
+// autoplay if already unlocked
+if (sessionStorage.getItem("musicUnlocked") === "true") {
+    music.volume = 0.6;
+    music.play().catch(()=>{});
+}
+
+
+// unlock music on first interaction
+function unlockMusic() {
+    if (!music.paused) return;
+
+    music.volume = 0.6;
+    music.play().then(() => {
+        sessionStorage.setItem("musicUnlocked", "true");
+        document.removeEventListener("click", unlockMusic);
+        document.removeEventListener("touchstart", unlockMusic);
+    }).catch(()=>{});
+}
+
+
+/* ---------------- ENTRY SCREEN INIT ---------------- */
+function init(){
+    const music = document.getElementById("bgMusic");
+
+    // DIRECT user-triggered play (browser-safe)
+    music.volume = 0.6;
+    music.muted = false;
+
+    music.play().then(() => {
+        sessionStorage.setItem("musicUnlocked", "true");
+    }).catch(err => {
+        console.log("Music blocked:", err);
+    });
+
+    const entry = document.getElementById("entry");
+    entry.style.opacity = "0";
+
+    setTimeout(() => {
+        entry.style.display = "none";
+        sessionStorage.setItem("entrySeen", "true");
+    }, 1500);
+}
+
+
+/* ---------------- ON LOAD ---------------- */
+window.onload = function(){
+    setupBackgrounds();
+    createParticles();
+
+    // hide entry if already visited
+    if(sessionStorage.getItem("entrySeen")==="true"){
+        const entry = document.getElementById("entry");
+        if(entry) entry.style.display="none";
+    }
+}
+</script>
+
+</body>
+</html>

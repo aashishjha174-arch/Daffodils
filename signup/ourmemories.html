@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daffodils Public School | Our Memories</title>
+<link rel="icon" href="images\logo.jpeg">
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;600&family=Playfair+Display:italic,wght@0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --glass: rgba(255, 255, 255, 0.1);
+    --gold: #d4af37;
+    --text: #ffffff;
+    --nav-color: #c2f3f3;
+}
+
+/* --- Reset & Body --- */
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#000;color:var(--text);font-family:'Montserrat',sans-serif;overflow-x:hidden;}
+
+/* --- Background & Particles --- */
+#bg-container{position:fixed; inset:0; z-index:-2; background:#000;}
+.bg-slide{position:absolute; inset:-20px; background-size:cover; background-position:center; opacity:0; filter: blur(20px) brightness(0.4) saturate(1.2); transition:opacity 2s ease-in-out;}
+.bg-slide.active{opacity:1;}
+
+#particles{position:fixed; inset:0; z-index:-1; pointer-events:none;}
+.particle{position:absolute; width:4px; height:4px; background:white; border-radius:50%; opacity:0.4; animation:floatUp 15s infinite linear;}
+@keyframes floatUp{0%{transform:translateY(110vh) translateX(0);opacity:0;}50%{opacity:0.5;}100%{transform:translateY(-10vh) translateX(20px);opacity:0;}}
+
+/* --- Header & Logo --- */
+header{text-align:center; padding:60px 20px 20px;}
+.title-container{display:flex; align-items:center; justify-content:center; gap:20px;}
+.school-name{font-family:'Playfair Display',serif; font-size:3.5rem; color:var(--gold); text-shadow:0 0 20px rgba(0,0,0,0.8);}
+.school-logo{height:80px; width:auto; filter: drop-shadow(0 0 10px rgba(212,175,55,0.5)); border-radius:50%;}
+
+/* --- Nav Buttons --- */
+@media (max-width:600px){
+.school-name{font-size:1.8rem !important; letter-spacing:2px;}
+.school-logo{height:50px !important;}
+.grid-container{grid-template-columns:1fr !important; padding:20px; gap:20px;}
+.focused-plate{padding:25px 15px !important; width:95% !important; max-height:85vh; overflow-y:auto;}
+.focused-plate h2{font-size:1.8rem !important;}
+.focused-plate img{width:140px !important; height:140px !important;}
+.search-area{flex-direction:row; padding:10px;}
+#studentSearch{padding:12px 15px; font-size:0.9rem;}
+.reset-btn{padding:0 15px; font-size:0.8rem;}
+.nav-bar{gap:10px; justify-content:center; flex-wrap:wrap;}
+.nav-bar a{padding:6px 10px; font-size:0.9rem;}
+}
+@media (min-width:601px) and (max-width:1024px){
+.grid-container{grid-template-columns:repeat(2,1fr) !important;}
+}
+/* --- Nav Buttons --- */
+.nav-bar {
+    display:flex; justify-content:center; gap:20px; flex-wrap:wrap;
+    padding:10px 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); position:sticky; top:0; z-index:999;
+}
+.nav-bar a {
+    color: var(--nav-color); text-decoration:none; font-weight:bold; padding:8px 15px; border-radius:20px;
+    transition:0.3s; border:1px solid var(--nav-color);
+}
+.nav-bar a:hover { background: var(--nav-color); color:#000; }
+
+/* --- Memories Grid --- */
+.memory-section{max-width:1200px; margin:40px auto; padding:0 20px;}
+.event-title{color:var(--gold); font-family:'Playfair Display',serif; font-size:2rem; margin-bottom:20px;}
+.grid-container{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px;}
+.memory-card{position:relative; cursor:pointer; border-radius:15px; overflow:hidden; border:1px solid rgba(255,255,255,0.1);}
+.memory-card img, .memory-card video{width:100%; border-radius:15px;}
+.memory-caption{text-align:center; margin-top:5px; font-size:1rem; opacity:0.8;}
+
+/* --- Modal for enlarge --- */
+#modal-overlay{position:fixed; inset:0; background:rgba(0,0,0,0.9); backdrop-filter:blur(15px); display:none; justify-content:center; align-items:center; z-index:10000; opacity:0; transition:opacity 0.5s;}
+#modal-overlay.active{display:flex; opacity:1;}
+.modal-content{position:relative; max-width:90%; max-height:90%; display:flex; flex-direction:column; align-items:center;}
+.modal-content img, .modal-content video{width:100%; max-height:80vh; border-radius:15px;}
+.close-btn{position:absolute; top:-15px; right:-15px; font-size:3rem; color:white; cursor:pointer;}
+
+/* --- Responsive --- */
+@media(max-width:600px){
+.school-name{font-size:1.8rem;}
+.school-logo{height:50px;}
+.grid-container{grid-template-columns:1fr;}
+.memory-caption{font-size:0.9rem;}
+}
+</style>
+</head>
+<body>
+
+<audio id="bgMusic" loop>
+    <source src="farewell.mp3" type="audio/mpeg">
+</audio>
+
+
+<div id="bg-container"></div>
+<div id="particles"></div>
+
+<header>
+    <div class="title-container">
+        <h1 class="school-name">DAFFODILS PUBLIC SCHOOL</h1>
+        <img src="images/logo.jpeg" alt="Logo" class="school-logo" onerror="this.style.display='none'">
+    </div>
+    <p style="letter-spacing:5px; margin-top:10px; opacity:0.8;">THE FINAL FAREWELL • BATCH 2082</p>
+</header>
+
+<div class="nav-bar">
+    <a href="student.html">Batch Members</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="review.html">Review</a>
+    <a href="ourmemories.html"> Our Memories</a>
+</div>
+
+<!-- Memories Sections -->
+<div class="memory-section">
+    <div class="event-title">Picnic #2080 in Bindhi</div>
+    <div class="grid-container">
+        <div class="memory-card">
+            <img src="images/sample1.jpeg" alt="Picnic Photo">
+            <div class="memory-caption">Group photo</div>
+        </div>
+        <div class="memory-card">
+            <img src="images/sample2.jpeg" alt="Picnic Photo">
+            <div class="memory-caption">Photoshoot with sanjeev sir</div>
+        </div>
+        <div class="memory-card">
+            <img src="images/sample3.jpeg" alt="Picnic Photo">
+            <div class="memory-caption">Rakesh sir ad account sir moments</div>
+        </div>
+        <div class="memory-card">
+    <video src="images/bindhi.mp4" controls muted preload="metadata"></video>
+    <div class="memory-caption">Games and laughter</div>
+      </div>
+</div>
+<div class="memory-section">
+    <div class="event-title">Picnic #2081 in Uttraine</div>
+    <div class="grid-container">
+        <div class="memory-card">
+            <img src="images/bg.jpeg" alt="Picnic Photo">
+            <div class="memory-caption">Group photo</div>
+</div>
+</div>
+</div>
+
+<div class="memory-section">
+    <div class="event-title">Picnic #2082 in Nunthar</div>
+    <div class="grid-container">
+        <div class="memory-card">
+            <img src="images/us.jpeg" alt="Picnic Photo">
+            <div class="memory-caption">Group photo</div>
+</div>
+</div>
+</div>
+<div class="memory-section">
+    <div class="event-title">#Waterpark</div>
+    <div class="grid-container">
+        <div class="memory-card">
+            <img src="images/girls.jpeg" alt="Picnic Photo">
+            <div class="memory-caption">Girls Group photo</div>
+    </div>
+        </div>
+<div class="grid-container">
+        <div class="memory-card">
+            <img src="images/boys1.jpeg" alt="Picnic Photo">
+            <div class="memory-caption">Boys Group photo</div>
+    </div>
+        </div>
+</div>
+<div class="memory-section">
+    <div class="event-title">#Dandiya</div>
+    <div class="grid-container">
+        <div class="memory-card">
+            <img src="images/girlsdan.jpeg" alt="Picnic Photo">
+            <div class="memory-caption">Girls Group photo</div>
+    </div>
+        </div>
+<div class="grid-container">
+        <div class="memory-card">
+            <img src="images/boys.jpeg" alt="Picnic Photo">
+            <div class="memory-caption">Boys Group photo</div>
+    </div>
+        </div>
+</div>
+<div class="memory-section">
+    <div class="event-title">#Extra</div>
+    <div class="grid-container">
+        <div class="memory-card">
+            <img src="images/cleanliness.jpeg" alt="Picnic Photo">
+            <div class="memory-caption">Us</div>
+    </div>
+        </div>
+        <div class="grid-container">
+        <div class="memory-card">
+            <img src="images/extra1.jpeg" alt="Picnic Photo">
+            <div class="memory-caption"> Crafts</div>
+    </div>
+        </div>
+</div>
+<div class="memory-section">
+    <div class="event-title">#Anniversary</div>
+    <div class="grid-container">
+        <div class="memory-card">
+            <img src="images/bg2.jpeg" alt="Picnic Photo">
+            <div class="memory-caption">Together</div>
+    </div>
+        </div>
+<!-- Modal for enlarge -->
+<div id="modal-overlay">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+    </div>
+</div>
+
+<script>
+// Background
+const bgImages = ['images/bg.jpeg','images/bg2.jpeg','images/bg4.jpeg'];
+function setupBackgrounds(){
+    const container = document.getElementById('bg-container');
+    container.innerHTML='';
+    bgImages.forEach((img,index)=>{
+        const div=document.createElement('div');
+        div.className=`bg-slide ${index===0?'active':''}`;
+        div.style.backgroundImage=`url('${img}')`;
+        container.appendChild(div);
+    });
+    let current=0;
+    setInterval(()=>{
+        const slides=document.querySelectorAll('.bg-slide');
+        slides[current].classList.remove('active');
+        current=(current+1)%slides.length;
+        slides[current].classList.add('active');
+    },6000);
+}
+setupBackgrounds();
+
+// Particles
+function createParticles(){
+    const container=document.getElementById('particles');
+    for(let i=0;i<40;i++){
+        const p=document.createElement('div');
+        p.className='particle';
+        const size=Math.random()*4+2;
+        p.style.width=`${size}px`;
+        p.style.height=`${size}px`;
+        p.style.left=Math.random()*100+'vw';
+        p.style.animationDuration=(Math.random()*10+8)+'s';
+        p.style.animationDelay=(Math.random()*5)+'s';
+        container.appendChild(p);
+    }
+}
+createParticles();
+
+// Modal Logic
+const modal = document.getElementById('modal-overlay');
+const modalContent = modal.querySelector('.modal-content');
+
+// Create a persistent close button
+let closeBtn = modalContent.querySelector('.close-btn');
+if(!closeBtn) {
+    closeBtn = document.createElement('span');
+    closeBtn.className = 'close-btn';
+    closeBtn.innerHTML = '&times;';
+    modalContent.appendChild(closeBtn);
+}
+
+// Close modal function
+function closeModal() {
+    modal.classList.remove('active');
+
+    // Remove media but keep close button
+    const media = modalContent.querySelector('img, video');
+    if(media) media.remove();
+}
+
+// Attach close event
+closeBtn.addEventListener('click', closeModal);
+
+// open video or image in modal
+document.querySelectorAll('.memory-card img, .memory-card video').forEach(item => {
+    item.addEventListener('click', e => {
+        modal.classList.add('active');
+
+        // clone media
+        const clone = item.cloneNode(true);
+        clone.style.maxWidth = "90%";
+        clone.style.maxHeight = "80vh";
+
+        if(clone.tagName === 'VIDEO') {
+            clone.muted = true; 
+            clone.play();
+            // stop modal when video ends
+            clone.addEventListener('ended', closeModal);
+        }
+
+        // remove old media (but keep close button)
+        const oldMedia = modalContent.querySelector('img, video');
+        if(oldMedia) oldMedia.remove();
+
+        modalContent.appendChild(clone);
+    });
+});
+
+// clicking outside media closes modal
+modal.addEventListener('click', e => {
+    if(e.target === modal) closeModal();
+});
+
+// toggle video play/pause on click
+modalContent.addEventListener('click', e => {
+    if(e.target.tagName === 'VIDEO') {
+        e.stopPropagation(); // prevent modal close
+        if(e.target.paused) e.target.play();
+        else e.target.pause();
+    }
+});
+</script>
+</body>
+</html>
