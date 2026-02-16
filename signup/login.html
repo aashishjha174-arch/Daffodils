@@ -121,7 +121,7 @@ window.addEventListener('load', () => {
     if (!username) return alert("Enter username");
 
     try {
-      const res = await fetch("http://localhost:3000/login", {
+      const res = await fetch("https://daffodils-1.onrender.com/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username })
