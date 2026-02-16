@@ -442,7 +442,10 @@ Thank you for helping maintain peace and harmony here.
     res.status(500).json({ success: false, message: "Failed to submit review" });
   }
 });
-
+// Ultra-light health check for uptime monitors
+app.get('/ping', (req, res) => {
+  res.status(200).send('pong');
+});
 // ────────────────────────────────────────────────
 // REPLY & DELETE – unchanged
 // ────────────────────────────────────────────────
