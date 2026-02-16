@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <title>Daffodils Public School | Login</title>
+  <title>Daffodils Public School | Sign Up</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -13,10 +13,10 @@
   <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
-  <!-- Bootstrap 4.5.2 -->
+  <!-- Bootstrap -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
-  <!-- Your custom CSS (adjust path if needed) -->
+  <!-- Your CSS -->
   <link rel="stylesheet" href="css/style.css">
 
   <!-- Background and overlay -->
@@ -48,7 +48,6 @@
 </head>
 <body class="img js-fullheight">
 
-<!-- Particle container -->
 <div id="particles-js"></div>
 
 <section class="ftco-section">
@@ -62,27 +61,30 @@
     <div class="row justify-content-center">
       <div class="col-md-6 col-lg-4">
         <div class="login-wrap p-4">
-          <h3 class="mb-4 text-center text-white">Sign In</h3>
+          <h3 class="mb-4 text-center text-white">Create an account</h3>
 
-          <form id="loginForm" class="signin-form">
+          <form id="signupForm" class="signin-form">
             <div class="form-group">
               <input type="text" id="username" class="form-control" placeholder="Username" required>
             </div>
 
-            <div class="form-group form-check">
-              <input type="checkbox" id="rememberMe" class="form-check-input">
-              <label class="form-check-label text-white" for="rememberMe">Remember Me</label>
+            <div class="form-group">
+              <label class="checkbox-wrap text-white">
+                I agree to the <a href="terms.html" target="_blank" class="text-white font-weight-bold" style="text-decoration: underline;">Terms & Conditions</a>
+                <input type="checkbox" id="terms" required>
+                <span class="checkmark"></span>
+              </label>
             </div>
 
             <div class="form-group">
               <button type="submit" class="form-control btn btn-primary submit px-3">
-                Login
+                Sign Up
               </button>
             </div>
           </form>
 
           <p class="w-100 text-center text-white mt-3">
-            Don't have an account? <a href="index.html" class="text-white font-weight-bold">Sign Up</a>
+            Already have an account? <a href="login.html" class="text-white font-weight-bold">Log In</a>
           </p>
         </div>
       </div>
@@ -102,54 +104,48 @@
   setInterval(changeBackground, 5000);
 </script>
 
-<!-- Login Functionality -->
+<!-- Signup Functionality (password removed) -->
 <script>
-window.addEventListener('load', () => {
-  const usernameInput = document.getElementById('username');
-  const rememberMe = document.getElementById('rememberMe');
+document.getElementById('signupForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const username = document.getElementById('username').value.trim();
+  const terms = document.getElementById('terms').checked;
 
-  // Pre-fill remembered username
-  const remembered = localStorage.getItem('rememberedUsername');
-  if (remembered) {
-    usernameInput.value = remembered;
-    rememberMe.checked = true;
+  if (!terms) {
+    alert('Please agree to the Terms & Conditions');
+    return;
   }
 
-  document.getElementById('loginForm').addEventListener('submit', async e => {
-    e.preventDefault();
-    const username = usernameInput.value.trim();
-    if (!username) return alert("Enter username");
+  if (!username) {
+    alert('Username is required');
+    return;
+  }
 
-    try {
-      const res = await fetch("http://localhost:3000/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username })
-      });
+  try {
+    const res = await fetch("http://localhost:3000/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username })   // ← only username sent
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (!data.success) {
-        alert(data.message);
-        return;
-      }
-
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('currentUser', data.username);
-
-      if (rememberMe.checked) {
-        localStorage.setItem('rememberedUsername', username);
-      } else {
-        localStorage.removeItem('rememberedUsername');
-      }
-
-      window.location.href = "load.html";
-
-    } catch (err) {
-      alert("Server error. Try again later.");
-      console.error(err);
+    if (!data.success) {
+      alert(data.message);
+      return;
     }
-  });
+
+    // AUTO LOGIN (assuming backend returns token even without password)
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("username", data.username);
+
+    window.location.href = "load.html";
+
+  } catch (err) {
+    alert("Server error. Try again later.");
+    console.error(err);
+  }
 });
 </script>
 

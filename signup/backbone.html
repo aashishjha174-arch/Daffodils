@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daffodils Public School | Our Backbone</title>
+<link rel="icon" href="images/logo.webp">
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;600&family=Playfair+Display:italic,wght@0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --glass: rgba(255, 255, 255, 0.08);
+    --gold: #d4af37;
+    --text: #ffffff;
+    --nav-color: #c2f3f3;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#000;color:var(--text);font-family:'Montserrat',sans-serif;overflow-x:hidden;}
+
+header{text-align:center; padding:60px 20px 20px;}
+.school-name{
+    font-family:'Playfair Display',serif;
+    font-size:3rem;
+    color:var(--gold);
+}
+.subtitle{
+    letter-spacing:4px;
+    opacity:0.7;
+    margin-top:10px;
+}
+#bg-container {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background: #000;
+}
+.bg-slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    filter: blur(20px) brightness(0.4) saturate(1.2);
+    transition: opacity 2s ease-in-out;
+}
+.bg-slide.active {
+    opacity: 1;
+}
+
+/* NAV */
+.nav-bar {
+    display:flex; justify-content:center; gap:20px; flex-wrap:wrap;
+    padding:10px 20px; background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(10px); position:sticky; top:0; z-index:999;
+}
+#particles {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+.particle {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.4;
+    animation: floatUp 15s infinite linear;
+}
+@keyframes floatUp {
+    0% { transform: translateY(110vh) translateX(0); opacity:0; }
+    50% { opacity:0.5; }
+    100% { transform: translateY(-10vh) translateX(20px); opacity:0; }
+}
+.nav-bar a {
+    color: var(--nav-color); text-decoration:none;
+    font-weight:bold; padding:8px 15px;
+    border-radius:20px; border:1px solid var(--nav-color);
+    transition:0.3s;
+}
+.nav-bar a:hover { background: var(--nav-color); color:#000; }
+
+/* GRID */
+.teacher-section{max-width:1200px;margin:60px auto;padding:0 20px;}
+.grid-container{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:30px;
+}
+
+header{text-align:center; padding:60px 20px 20px;}
+.title-container{display:flex; align-items:center; justify-content:center; gap:20px;}
+.school-name{font-family:'Playfair Display',serif; font-size:3.5rem; color:var(--gold); text-shadow:0 0 20px rgba(0,0,0,0.8);}
+.school-logo{height:80px; width:auto; filter: drop-shadow(0 0 10px rgba(212,175,55,0.5)); border-radius:50%;}
+.teacher-card{
+    background:var(--glass);
+    backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:20px;
+    padding:25px;
+    text-align:center;
+    transition:0.4s;
+}
+.teacher-card:hover{
+    transform:translateY(-10px);
+    box-shadow:0 0 30px rgba(212,175,55,0.3);
+}
+.teacher-card img{
+    width:140px;
+    height:140px;
+    object-fit:cover;
+    border-radius:50%;
+    border:3px solid var(--gold);
+    margin-bottom:15px;
+}
+.teacher-card h3{
+    font-family:'Playfair Display';
+    color:var(--gold);
+    font-size:1.5rem;
+}
+.subject{
+    letter-spacing:2px;
+    font-size:0.9rem;
+    opacity:0.7;
+    margin:8px 0;
+}
+.bio{
+    font-size:0.9rem;
+    opacity:0.85;
+    line-height:1.6;
+}
+</style>
+</head>
+
+<body>
+    <div id="particles"></div>
+<div id="bg-container"></div>
+
+<header>
+    <div class="title-container">
+        <h1 class="school-name">DAFFODILS PUBLIC SCHOOL</h1>
+        <img src="images/logo.webp" alt="Logo" class="school-logo" onerror="this.style.display='none'">
+    </div>
+    <p style="letter-spacing:5px; margin-top:10px; opacity:0.8;">THE FINAL FAREWELL • BATCH 2082</p>
+</header>
+
+<div class="nav-bar">
+    <a href="student.html">Batch Members</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="review.html">Review</a>
+    <a href="ourmemories.html">Our Memories</a>
+    <a href="backbone.html">Backbones</a>
+</div>
+
+<section class="teacher-section">
+<div class="grid-container">
+
+<div class="grid-container">
+
+<div class="teacher-card">
+    <img src="images/mam.webp" alt="Dr. Veena Thakur">
+    <h3>Dr. Veena Thakur</h3>
+    <div class="subject">PRINCIPAL</div>
+    <div class="bio">
+      She is strict, no doubt. But the kind of strict that actually wants the school to grow. 
+      Whenever she walks in for inspection, the whole class suddenly becomes the "quitest class of the school😂". 
+      But deep down, she cares about our future and always pushes us to aim higher.
+      Her appreciation always pushes us and guides us the real way to succeed.
+    </div>
+</div>
+
+<div class="teacher-card">
+    <img src="images/sir.webp" alt="Dr. Rabindra Thakur">
+    <h3>Dr. Rabindra Thakur</h3>
+    <div class="subject">DIRECTOR</div>
+    <div class="bio">
+        Sir gives that calm but stressful vibe. 
+        He doesnot always catches us, but when he does, 
+        either your fee is unpaid, or your hair is to messy.😂
+        Still cares for us alot.. 
+    </div>
+</div>
+
+<div class="teacher-card">
+    <img src="images/pawan.webp" alt="Pawan Jha Sir">
+    <h3>Pawan Jha Sir</h3>
+    <div class="subject">MATHEMATICS TEACHER</div>
+    <div class="bio">
+        Maths with him is either pure genius or pure panic.
+         He explains in a way that actually makes sense and also make us enjoy maths,
+          but if you don’t do homework… He slays a dialogue on you "Yee behuda haru😂, Ali ta padhi hal"
+         Still, he’s one of those teachers who actually wants you to understand, not just memorize.
+    </div>
+</div>
+
+<div class="teacher-card">
+    <img src="images/sourav.webp" alt="Sourav Singh Rajput Sir">
+    <h3>Sourav Singh Rajput Sir</h3>
+    <div class="subject">SCIENCE TEACHER</div>
+    <div class="bio">
+         Sometimes serious, sometimes fun, but always explaining things properly.
+         "Aee mula😂", one of his favourite dialogue
+         His way of teaching makes science feel less scary and more interesting. But his exam questions do scares us a lot.
+          And practical classes with him? Elite moments.
+    </div>
+</div>
+
+<div class="teacher-card">
+    <img src="images/sudip.webp" alt="Sudip Panday Sir">
+    <h3>Sudip Panday Sir</h3>
+    <div class="subject">OPTIONAL MATHEMATICS</div>
+    <div class="bio">
+       Optional maths is already tough, and then he comes with next-level questions.
+        But honestly, he pushes us to think deeper. He doesn’t spoon-feed answers. 
+        If you survive his class, you can survive anything. The trigonometry and cordinates one specifically.😂
+        Don't dare to challenge him, once Aarav did, then sir did a equation with 7 different meathods.☠️
+    </div>
+</div>
+
+<div class="teacher-card">
+    <img src="images/coordinator.webp" alt="Ambika Ray Mam">
+    <h3>Ambika Ray Mam</h3>
+    <div class="subject">COORDINATOR</div>
+    <div class="bio">
+       The one who manages everything behind the scenes.
+        Calling at homes for mid day school off, absent guys, whole day busy because of juniors. 
+        Still, she always keeps things organized.
+    </div>
+</div>
+
+<div class="teacher-card">
+    <img src="images/ritu.webp" alt="Ritu Tiwary Mam">
+    <h3>Ritu Tiwary Mam</h3>
+    <div class="subject">CLASS TEACHER / ENGLISH</div>
+    <div class="bio">
+        She knows the class too well. Like… too well.
+         English periods with her are actually interesting, and she makes us participate instead of just sitting silently.
+          As a class teacher, she balances strictness and care perfectly.
+          And one of her favourite dialogur, "Its my fault I gave you too much liberty" because we shout alot.😂
+          Still cares us alot.❤️
+    </div>
+</div>
+<div class="teacher-card">
+    <img src="images/rahul.webp" alt="Rahul Jha Sir">
+    <h3>Rahul Jha Sir</h3>
+    <div class="subject">MOTIVATOR & COMPETITION TRAINER</div>
+    <div class="bio">
+        He doesn’t come daily, but when he comes, energy changes.
+         Helps us prepare for speeches, anchoring, and big competitions.
+          Makes practice fun instead of stressful.
+           One of those teachers who boosts confidence instantly.
+         He is like, We don't come always, but when we come, we do our best.😅
+         Still, always there for us, to support us ❤️  
+    </div>
+</div>
+
+<div class="teacher-card">
+    <img src="images/bharti.webp" alt="Manoj Bharti Sir">
+    <h3>Manoj Bharti Sir</h3>
+    <div class="subject">COMPUTER TEACHER</div>
+    <div class="bio">
+        Still remember the Practical exams with sir. 
+       Teaches properly but also understands that half of us are not understanding, stil if we ask, he teaches us again with same energy.⚡
+        His classes are chill but informative. And yes, he knows when we’re pretending to work.😅
+        His Sanskrit shlokas are like best, really. ✨. One of our best teacher.
+    </div>
+</div>
+
+<div class="teacher-card">
+    <img src="images/ravi.webp" alt="Ravi Chandra Lal Karn Sir">
+    <h3>Ravi Chandra Lal Karn Sir</h3>
+    <div class="subject">ACCOUNT TEACHER</div>
+    <div class="bio">
+        He is the most energetic teacher e had ever seen.⚡
+       Accounts is not easy, but he tries to make it simple. 
+       He explains step by step and repeats if needed. 
+       His balance sheets and bank vouchers are still in our minds.
+       Teaches us in a way, we get more interest towards listening his words.✨
+       You can tell he really wants students to actually understand debit-credit properly.
+    </div>
+</div>
+
+<div class="teacher-card">
+    <img src="images/rakesh.webp" alt="Rakesh Sir">
+    <h3>Rakesh Sir</h3>
+    <div class="subject">COMPUTER ROOM INCHARGE</div>
+    <div class="bio">
+       If something in the lab isn’t working, he’s the man.👨‍🦰
+        Always handling wires, systems, printers — basically keeping the tech world of our school alive.
+         Silent worker but very important for smooth practical days.❤️
+         Previously he used to teach us, his teaching skills are also next level. ⚡☠️
+    </div>
+</div>
+
+<div class="teacher-card">
+    <img src="images/mukesh.webp" alt="Mukesh Mandal Sir">
+    <h3>Mukesh Mandal Sir</h3>
+    <div class="subject">SOCIAL STUDIES</div>
+    <div class="bio">
+        Uhh, I remember the sleepiness i get during social classes. 😅
+        History and civics are boring, but he adds real-life examples that make it more understandable. 
+        He teaches in a straightforward way.
+         If you listen properly, exams become much easier. But if not, in exams the questions wil go from above your head.😂
+    </div>
+</div>
+
+<div class="teacher-card">
+    <img src="images/sanjeev.webp" alt="Sanjeev Sharma Sir">
+    <h3>Sanjeev Sharma Sir</h3>
+    <div class="subject">MORAL SCIENCE & Extra Activities INCHARGE</div>
+    <div class="bio">
+       Not just a teacher — more like a motivator. 👨‍🦰
+       Whether it’s moral science, competitions, or extracurricular activities, 
+       he pushes students to come forward. ✨
+       He actually believes in hidden talents and tries to bring them out.
+       Because of him I realized that I can do great in quiz competitions.⚡
+    </div>
+</div>
+
+<div class="teacher-card">
+    <img src="images/guru.webp" alt="Yagya Prasad Acharya Sir">
+    <h3>Yagya Prasad Acharya Sir</h3>
+    <div class="subject">NEPALI TEACHER</div>
+    <div class="bio">
+        The reason for our fluent vocals in Nepali.✨
+        His Nepali classes feel traditional but meaningful.
+         And don't even try to change your place in his class, eles, you are finish.😅
+         I stil remember his favourite dialogue, " Aee Shanti" to make the class silent.😂
+    </div>
+</div>
+
+<div class="teacher-card">
+    <img src="images/baba.webp" alt="Accountant Sir">
+    <h3>Accountant Sir(Baba)</h3>
+    <div class="subject">FINANCE HEAD</div>
+    <div class="bio">
+        You mostly see him near office work, handling fees and financial stuff. 
+        Quiet but important. The school’s financial backbone. ☠️
+        Without him, nothing would run smoothly.
+        Most trust worthy person of school and very simple living person.✨
+    </div>
+</div>
+
+<div class="teacher-card">
+    <img src="images/amit.webp" alt="Amit Permarsi Sir">
+    <h3>Amit Permarsi Sir</h3>
+    <div class="subject">COMPUTER ROOM CO-INCHARGE</div>
+    <div class="bio">
+        FIlling and sumbitting forms, questions, printing, and everything tech-related in the background.🤖
+         Always busy. If something needs to be managed digitally, he’s already on it.⚡
+    </div>
+</div>
+
+</div>
+
+
+</div>
+</section>
+<script>
+    const bgImages = ['images/bg.webp', 'images/bg2.webp', 'images/bg3.webp', 'images/sample2.webp'];
+
+function setupBackgrounds(){
+    const container = document.getElementById('bg-container');
+    container.innerHTML='';
+    bgImages.forEach((img,index)=>{
+        const div=document.createElement('div');
+        div.className=`bg-slide ${index===0?'active':''}`;
+        div.style.backgroundImage=`url('${img}')`;
+        container.appendChild(div);
+    });
+    let current=0;
+    setInterval(()=>{
+        const slides=document.querySelectorAll('.bg-slide');
+        slides[current].classList.remove('active');
+        current=(current+1)%slides.length;
+        slides[current].classList.add('active');
+    },6000);
+}
+
+window.onload = () => {
+    setupBackgrounds();
+};
+function createParticles() {
+    const container = document.getElementById('particles');
+    for (let i=0; i<40; i++){
+        const p=document.createElement('div');
+        p.className='particle';
+        const size=Math.random()*4+2;
+        p.style.width=p.style.height=`${size}px`;
+        p.style.left=Math.random()*100+'vw';
+        p.style.animationDuration=(Math.random()*10+8)+'s';
+        p.style.animationDelay=(Math.random()*5)+'s';
+        container.appendChild(p);
+    }
+}
+window.onload = () => {
+    setupBackgrounds();
+    createParticles();
+};
+
+</script>
+</body>
+</html>

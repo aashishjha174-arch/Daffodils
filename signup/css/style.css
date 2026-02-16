@@ -370,7 +370,65 @@ mark,
 .mark {
   padding: 0.2em;
   background-color: #1100ff; }
+/* ============================================= */
+/*                HEADER & AVATAR                */
+/* ============================================= */
 
+.navbar-custom {
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.avatar-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-color: #6c757d;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+}
+
+.btn-logout {
+  min-width: 90px;
+}
+
+/* Dark mode support */
+:root {
+  --bg-primary: #0f0f1a;
+  --bg-secondary: #1a1a2e;
+  --text-primary: #e0e0ff;
+  --text-secondary: #a0a0ff;
+  --card-bg: rgba(30, 30, 50, 0.7);
+}
+
+body.dark {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+body.dark .card,
+body.dark .login-wrap,
+body.dark .ftco-section {
+  background: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+body.dark .form-control {
+  background: #2a2a4a;
+  border-color: #4a4a6a;
+  color: white;
+}
+
+body.dark .btn-primary {
+  background: #5a5aff;
+  border-color: #5a5aff;
+}
 .list-unstyled {
   padding-left: 0;
   list-style: none; }

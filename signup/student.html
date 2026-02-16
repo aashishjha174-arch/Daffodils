@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daffodils Public School | Memories 2082</title>
-<link rel="icon" href="images\logo.jpeg">
+<link rel="icon" href="images\logo.webp">
 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;600&family=Playfair+Display:italic,wght@0,700;1,400&display=swap" rel="stylesheet">
 
 <style>
@@ -97,7 +97,7 @@ header{text-align:center; padding:60px 20px 20px;}
 <header>
     <div class="title-container">
         <h1 class="school-name">DAFFODILS PUBLIC SCHOOL</h1>
-        <img src="images/logo.jpeg" alt="Logo" class="school-logo" onerror="this.style.display='none'">
+        <img src="images/logo.webp" alt="Logo" class="school-logo" onerror="this.style.display='none'">
     </div>
     <p style="letter-spacing:5px; margin-top:10px; opacity:0.8;">THE FINAL FAREWELL • BATCH 2082</p>
 </header>
@@ -108,6 +108,7 @@ header{text-align:center; padding:60px 20px 20px;}
     <a href="dashboard.html">Dashboard</a>
     <a href="review.html">Review</a>
     <a href="ourmemories.html">Our Memories</a>
+    <a href="backbone.html">Backbones</a>
 </div>
 
 <!-- Search -->
@@ -127,40 +128,40 @@ const students=[
 
 {name:"Shailshree",roll:"1",info:"A brilliant mind with endless potential.",bio:"Known for her achievements in studies and skills, from coming 1st to getting selected in drawing competitions, from speeches to debates, she slays everywhere..",photo:"images/female.jpg"},
 
-{name:"Satyam Jha",roll:"2",info:"The most comfortable guy in the batch!",bio:"Known for making everyone laugh even in the toughest times. His humor and energy were the heartbeat of Class 10. A great anchor, artist and speech compitions winner",photo:"images/satyam.jpeg"},
+{name:"Satyam Jha",roll:"2",info:"The most comfortable guy in the batch!",bio:"Known for making everyone laugh even in the toughest times. His humor and energy were the heartbeat of Class 10. A great anchor, artist and speech compitions winner",photo:"images/satyam.webp"},
 
-{name:"Prem Ranjan Ray",roll:"3",info:"Calm, composed, and extremely talented.",bio:"known for his calm perspective. A great friend and a very talented guy.",photo:"images/prem.jpeg"},
+{name:"Prem Ranjan Ray",roll:"3",info:"Calm, composed, and extremely talented.",bio:"known for his calm perspective. A great friend and a very talented guy.",photo:"images/prem.webp"},
 
-{name:"Ansh Panday(Pandu)",roll:"4",info:"Always excited, always alive.",bio:"The spark plug of the class. Full of excitement, playful by nature, and armed with elite humor. If laughter had a roll number, it’d be his.",photo:"images/ansh.jpeg"},
+{name:"Ansh Panday(Pandu)",roll:"4",info:"Always excited, always alive.",bio:"The spark plug of the class. Full of excitement, playful by nature, and armed with elite humor. If laughter had a roll number, it’d be his.",photo:"images/ansh.webp"},
 
 {name:"Kriti Acharya",roll:"5",info:"Calm soul with a sharp mind.",bio:"Well-maintained in every sense — from notes to nature. Calm, composed, and consistently strong in studies. Quiet confidence, loud results.",photo:"images/female.jpg"},
 
-{name:"Aarav Jha(Aaree)",roll:"6",info:"Born to befriend numbers.",bio:"A true mathematician by Sudip sir. Known for his strong grip on studies and a mind that solves equations like poetry.",photo:"images/aarav.jpeg"},
+{name:"Aarav Jha(Aaree)",roll:"6",info:"Born to befriend numbers.",bio:"A true mathematician by Sudip sir. Known for his strong grip on studies and a mind that solves equations like poetry.",photo:"images/aarav.webp"},
 
-{name:"Ankit Thakur",roll:"7",info:"Friendly vibes, focused goals.",bio:"Well-maintained, approachable, and academically solid. A friendly presence who balanced studies and social life like a pro.",photo:"images/ankit.jpeg"},
+{name:"Ankit Thakur",roll:"7",info:"Friendly vibes, focused goals.",bio:"Well-maintained, approachable, and academically solid. A friendly presence who balanced studies and social life like a pro.",photo:"images/ankit.webp"},
 
 {name:"Aayushi Karna",roll:"8",info:"Grace, energy, and endless potential.",bio:"Calm yet playful, disciplined yet fully energetic. Excels in studies, shines in dance and singing, and carries a spark that lights up every room.",photo:"images/female.jpg"},
 
-{name:"Ansh Ray",roll:"9",info:"Maths beast with teacher-approved aura.",bio:"A favorite of Pawan sir and Sudip sir for a reason. Can crack almost any maths problem with ease. Logic lives rent-free in his head.",photo:"images/anshray.jpeg"},
+{name:"Ansh Ray",roll:"9",info:"Maths beast with teacher-approved aura.",bio:"A favorite of Pawan sir and Sudip sir for a reason. Can crack almost any maths problem with ease. Logic lives rent-free in his head.",photo:"images/anshray.webp"},
 
-{name:"Prince Yadav(X-Ten)",roll:"10",info:"Brains, humor, and back-bench beats.",bio:"Strong in studies, sharp with humor, and legendary for producing unexpected sounds from the back benches. Academic focus with comic relief.",photo:"images/prince.jpeg"},
-{name:"Aarush Thakur",roll:"11",info:"Friendly leader with a heart of gold.",bio:"The legendary 'Mota Bhai' of the class. Full of charm, always approachable, and a natural leader who makes everyone feel included.",photo:"images/aarush.jpeg"},
+{name:"Prince Yadav(X-Ten)",roll:"10",info:"Brains, humor, and back-bench beats.",bio:"Strong in studies, sharp with humor, and legendary for producing unexpected sounds from the back benches. Academic focus with comic relief.",photo:"images/prince.webp"},
+{name:"Aarush Thakur",roll:"11",info:"Friendly leader with a heart of gold.",bio:"The legendary 'Mota Bhai' and 'Udyog of the class'. Full of charm, always approachable, and a natural leader who makes everyone feel included.",photo:"images/aarush.webp"},
 
 {name:"Riya Panday",roll:"12",info:"Calm, composed, and future-ready.",bio:"Well-maintained and steady, with the potential to achieve greatness. Strong in studies, graceful in presence, and a silent force of inspiration.",photo:"images/female.jpg"},
 
-{name:"Aayush Thakur",roll:"13",info:"Excited and Bharti sir fav. guy, adventure ready.",bio:"The class clown meets thrill-seeker. Known for humor, always pumped for unique adventures, and bringing energy wherever he goes.",photo:"images/aayush.jpeg"},
+{name:"Aayush Thakur",roll:"13",info:"Excited and Bharti sir fav. guy, adventure ready.",bio:"The class clown meets thrill-seeker. Known for humor, always pumped for unique adventures, and bringing energy wherever he goes.",photo:"images/aayush.webp"},
 
-{name:"Aaditya Panday",roll:"14",info:"Calm mathematician with sharp mind.",bio:"Excels in mathematics and studies, well-maintained, and carries a quiet calmness that makes him reliable and respected by all.",photo:"images/aaditya.jpeg"},
+{name:"Aaditya Panday",roll:"14",info:"Calm mathematician with sharp mind.",bio:"Excels in mathematics and studies, well-maintained, and carries a quiet calmness that makes him reliable and respected by all.",photo:"images/aaditya.webp"},
 
 {name:"Amishi Panday",roll:"15",info:"Peaceful charm with brains.",bio:"Known for her calm, peaceful aura and charming personality. Strong in studies, disciplined, and always well-presented.",photo:"images/female.jpg"},
 
-{name:"Aashish Jha",roll:"16",info:"Web wizard.",bio:"Master of web development, coding enthusiast, and visionary thinker.Has a very worst uck in lovelife..",photo:"images/aashish.jpeg"},
+{name:"Aashish Jha",roll:"16",info:"Web wizard.",bio:"Master of web development, coding enthusiast, and visionary thinker.Has a very worst uck in lovelife..",photo:"images/aashish.webp"},
 
-{name:"Siddharth Yadav",roll:"17",info:"Cheerful romantic and aesthetic 'bouna' guy.",bio:"Full of excitement and laughter, loves stories of all kinds. Brings cheer and aesthetic vibes to the class, making everyday memorable.",photo:"images/siddharth.jpeg"},
+{name:"Siddharth Yadav",roll:"17",info:"Cheerful romantic and aesthetic 'bouna' guy.",bio:"Full of excitement and laughter, loves stories of all kinds. Brings cheer and aesthetic vibes to the class, making everyday memorable.",photo:"images/siddharth.webp"},
 
-{name:"Prince Kr. Yadav",roll:"18",info:"Mathematics master and fearless spirit.(ganja)",bio:"Crazy about maths, never backs down from an argument, extremely friendly, and always ready to take on any new challenge with excitement.",photo:"images/ganja.jpeg"},
+{name:"Prince Kr. Yadav",roll:"18",info:"Mathematics master and fearless spirit.(ganja)",bio:"Crazy about maths, never backs down from an argument, extremely friendly, and always ready to take on any new challenge with excitement.",photo:"images/ganja.webp"},
 
-{name:"Anukalp Thakur",roll:"19",info:"Science crazy with calm energy.",bio:"Loves everything science — theory, numericals, experiments. Peaceful yet full of excitement, always curious and ready to explore the unknown.",photo:"images/anukalp.jpeg"},
+{name:"Anukalp Thakur",roll:"19",info:"Science crazy with calm energy.",bio:"Loves everything science — theory, numericals, experiments. Peaceful yet full of excitement, always curious and ready to explore the unknown.",photo:"images/anukalp.webp"},
 
 {name:"Shreya Rani Sah",roll:"20",info:"Calm, smart, and graceful.",bio:"Peaceful, well-maintained, and academically strong. Her calm aura and sharp mind make her a role model for balance and focus.",photo:"images/female.jpg"},
 
@@ -168,31 +169,31 @@ const students=[
 
 {name:"Priya Sah",roll:"22",info:"Calm, smart, future-ready.",bio:"Well-maintained and composed, with the potential to achieve great heights. Strong in studies and quietly confident, a gem in every way.",photo:"images/female.jpg"},
 
-{name:"Samridh Karn",roll:"23",info:"Playful charm with endless energy.",bio:"Friendly, charming, and full of excitement. Has most no. of girlfriends Always ready to bring fun to the class and make everyone smile, a true vibe booster.",photo:"images/samridh.jpeg"},
+{name:"Samridh Karn",roll:"23",info:"Playful charm with endless energy.",bio:"Friendly, charming, and full of excitement. Always ready to bring fun to the class and make everyone smile, a true vibe booster, a true friend.",photo:"images/samridh.webp"},
 
-{name:"Ashwin Yadav",roll:"24",info:"Charming sportsman with unique style.(Pele)",bio:"Known for friendliness, charm, and a one-of-a-kind aura. Excels in sports, makes friends effortlessly, and leaves a memorable impression everywhere.",photo:"images/ashwin.jpeg"},
+{name:"Ashwin Yadav",roll:"24",info:"Charming sportsman with unique style.(Pele)",bio:"Known for friendliness, charm, and a one-of-a-kind aura. Excels in sports, makes friends effortlessly, and leaves a memorable impression everywhere.",photo:"images/ashwin.webp"},
 
-{name:"Dhiraj Mahato",roll:"25",info:"Friendly brain with style.",bio:"Well-maintained, charming, and strong in studies. A dependable friend with a warm personality and a sharp mind.",photo:"images/dhiraj.jpeg"},
+{name:"Dhiraj Mahato",roll:"25",info:"Friendly brain with style.",bio:"Well-maintained, charming, and strong in studies. A dependable friend with a warm personality and a sharp mind.",photo:"images/dhiraj.webp"},
 
 {name:"Sneha Sah",roll:"26",info:"Artist, charm, and brains combined.",bio:"The class artist with amazing artworks. Friendly, well-maintained, charming, and academically strong. Creativity flows through her everywhere.",photo:"images/female.jpg"},
 
-{name:"Raj Sharma",roll:"27",info:"Jokes, charm, and backbench energy.( Shaiyari expert)",bio:"Master of funny jokes and pickup lines. Well-maintained, charming, and always ready to make the class laugh.",photo:"images/raj.jpeg"},
+{name:"Raj Sharma",roll:"27",info:"Jokes, charm, and backbench energy.( Shaiyari expert)",bio:"Master of funny jokes and pickup lines. Well-maintained, charming, and always ready to make the class laugh.",photo:"images/raj.webp"},
 
-{name:"Sumit Sah",roll:"28",info:"Brains, charm, and future star.",bio:"Friendly, well-maintained, academically strong, and full of potential. Always ready to do something great and inspire everyone around.",photo:"images/sumit.jpeg"},
+{name:"Sumit Sah",roll:"28",info:"Brains, charm, and future star.",bio:"Friendly, well-maintained, academically strong, and full of potential. Always ready to do something great and inspire everyone around.",photo:"images/sumit.webp"},
 
-{name:"Aaditya Jha",roll:"29",info:"Cricket craze with charm.(Bittu Bhai)",bio:"Charming and well-maintained, a cricket lover with a popular YouTube channel. Skilled in cricket and full of energy, always the hype of the game.",photo:"images/aadityajha.jpeg"},
+{name:"Aaditya Jha",roll:"29",info:"Cricket craze with charm.(Bittu Bhai)",bio:"Charming and well-maintained, a cricket lover with a popular YouTube channel. Skilled in cricket and full of energy, always the hype of the game.",photo:"images/aadityajha.webp"},
 
-{name:"Suraj Ray",roll:"30",info:"Friendly joker with a big heart.",bio:"Charming and helpful, cracks the best jokes, and always there for anyone in need. Humor and friendliness wrapped in one unforgettable persona. Sometime becomes hindu, and sometime muslim.",photo:"images/suraj.jpeg"},
+{name:"Suraj Ray",roll:"30",info:"Friendly, interesting with a big heart.",bio:"Charming and helpful, quite funny, and always there for anyone in need. Humor and friendliness wrapped in one unforgettable persona. ",photo:"images/suraj.webp"},
 
-{name:"Dipak Sah",roll:"31",info:"Charming, playful, mask man.",bio:"Always playful, full of charm, and known as the 'mask man', 'Helmet wala' for his mysterious vibe. Well-maintained and always ready to bring fun.",photo:"images/dipak.jpeg"},
+{name:"Dipak Sah",roll:"31",info:"Charming, playful, mask man.",bio:"Always playful, full of charm, and known as the 'mask man', 'Helmet wala' for his mysterious vibe. Well-maintained and always ready to bring fun.",photo:"images/dipak.webp"},
 
 {name:"Christina Yadav",roll:"32",info:"Not Given",bio:"Not Given",photo:"images/female.jpg"},
 
-{name:"Yogesh Yadav",roll:"33",info:"Charming, helpful, class magnet.",bio:"Helpful, charmful, and the main target of everyone's admiration. Brings positivity and is always ready to assist friends.",photo:"images/yogesh.jpeg"},
+{name:"Yogesh Yadav",roll:"33",info:"Most annoying and creepy guy",bio:"Most annoying guy of the class. Always tries to seek attention, disturbs the most. Seems like aesthetic in online but the most annoying in real ife",photo:"images/yogesh.webp"},
 
-{name:"Prince Mishra",roll:"34",info:"Religious, well-maintained, social studies star.",bio:"Deeply religious and well-maintained, excels in social studies and political discussions. A calm, wise, and respected presence in class.",photo:"images/mishra.jpeg"},
+{name:"Prince Mishra",roll:"34",info:"Religious, well-maintained, social studies star.",bio:"Deeply religious and well-maintained, excels in social studies and political discussions. A calm, wise, and respected presence in class.",photo:"images/mishra.webp"},
 
-{name:"Sahil Sah",roll:"35",info:"Charming, friendly, mannered.",bio:"Charming, friendly, and mannered. Huge devotee of Goddess Rajdevi Mata, balancing spirituality with his warm, approachable personality.",photo:"images/sahil.jpeg"},
+{name:"Sahil Sah",roll:"35",info:"Charming, friendly, mannered.",bio:"Charming, friendly, and mannered. Huge devotee of Goddess Rajdevi Mata, balancing spirituality with his warm, approachable personality.",photo:"images/sahil.webp"},
 
 {name:"Anshu Yadav",roll:"36",info:"Not Given",bio:"Not Given",photo:"images/female.jpg"},
 
@@ -206,10 +207,10 @@ const students=[
 
 {name:"Boby Chaudhary",roll:"41",info:"Charming, playful, friendly.",bio:"Charming, friendly, and playful. Always excited for new adventures and activities, spreading energy and fun everywhere.",photo:"images/female.jpg"},
 
-{name:"Anuranjan Raj Sah",roll:"42",info:"Absent legend.",bio:"Famous for being the number one absentee. Only appears during exams or rare weeks, but still leaves a mark with his class presence.",photo:"images/anuranjan.jpeg"},
+{name:"Anuranjan Raj Sah",roll:"42",info:"Absent legend.",bio:"Famous for being the number one absentee. Only appears during exams or rare weeks, but still leaves a mark with his class presence.",photo:"images/anuranjan.webp"},
 
 ];
-const bgImages=['images/bg.jpeg','images/bg4.jpeg','images/bg2.jpeg'];
+const bgImages=['images/bg.webp','images/bg3.webp','images/bg2.webp', 'images/sample2.webp'];
 
 function setupBackgrounds(){const container=document.getElementById('bg-container');container.innerHTML='';bgImages.forEach((img,index)=>{const div=document.createElement('div');div.className=`bg-slide ${index===0?'active':''}`;div.style.backgroundImage=`url('${img}')`;container.appendChild(div);});let current=0;setInterval(()=>{const slides=document.querySelectorAll('.bg-slide');if(slides.length>0){slides[current].classList.remove('active');current=(current+1)%slides.length;slides[current].classList.add('active');}},6000);}
 function createParticles(){const container=document.getElementById('particles');container.innerHTML='';for(let i=0;i<40;i++){const p=document.createElement('div');p.className='particle';const size=Math.random()*4+2;p.style.width=`${size}px`;p.style.height=`${size}px`;p.style.left=Math.random()*100+'vw';p.style.animationDuration=(Math.random()*10+8)+'s';p.style.animationDelay=(Math.random()*5)+'s';container.appendChild(p);}}

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Loading...</title>
-  <link rel="icon" href="images\logo.jpeg">
+  <link rel="icon" href="images/logo.jpeg">
   <style>
     :root {
       --pencil-green: #09d56e;
@@ -24,6 +24,17 @@
       color: #fff;
       font-size: 1.5rem;
       overflow: hidden;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 500px;
     }
 
     @keyframes pencil-animation {
@@ -34,10 +45,10 @@
         transform: rotate(315deg);
       }
       45% {
-        transform: translateX(300px) rotate(315deg);
+        transform: translateX(min(300px, 60vw)) rotate(315deg);
       }
       55% {
-        transform: translateX(300px) rotate(495deg);
+        transform: translateX(min(300px, 60vw)) rotate(495deg);
       }
       100% {
         transform: rotate(495deg);
@@ -61,7 +72,7 @@
 
     .pencil {
       position: relative;
-      width: 300px;
+      width: min(300px, 60vw);
       height: 40px;
       transform-origin: center;
       transform: rotate(135deg);
@@ -121,11 +132,9 @@
 
     .line {
       position: relative;
-      top: 80px;
-      right: 103px;
+      margin-top: 80px;
       height: 10px;
-      width: 1000px;
-      z-index: -1;
+      width: min(1000px, 90vw);
       border-radius: 50px;
       background: var(--pencil-green);
       transform: scaleX(0);
@@ -134,34 +143,69 @@
     }
 
     h2 {
-      position: relative;
-      top: 150px;
-      right: 75px;
-      margin: 0;
-      font-size: 1.4rem;
+      margin-top: 40px;
+      font-size: clamp(1rem, 4vw, 1.4rem);
+      text-align: center;
     }
 
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+      .pencil {
+        height: 30px;
+      }
+
+      .line {
+        margin-top: 60px;
+        height: 8px;
+      }
+
+      h2 {
+        margin-top: 30px;
+      }
+    }
+
+    /* Welcome message style */
+    .welcome-message {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: var(--pencil-green);
+    }
   </style>
 </head>
 <body>
-
-  <div class="pencil">
-  <div class="pencil__ball-point"></div>
-  <div class="pencil__cap"></div>
-  <div class="pencil__cap-base"></div>
-  <div class="pencil__middle"></div>
-  <div class="pencil__eraser"></div>
-</div>
-<div class="line"></div>
-<h2>Page Loading...Please Wait</h2>
+  <div class="loading-container">
+    <div class="pencil">
+      <div class="pencil__ball-point"></div>
+      <div class="pencil__cap"></div>
+      <div class="pencil__cap-base"></div>
+      <div class="pencil__middle"></div>
+      <div class="pencil__eraser"></div>
+    </div>
+    <div class="line"></div>
+    <h2>Page Loading... Please Wait</h2>
+    <div class="welcome-message" id="welcomeMessage"></div>
+  </div>
 
   <script>
-    // Redirect after 3 seconds
+    // Get username from localStorage
+    const username = localStorage.getItem('currentUser') || localStorage.getItem('username') || 'Guest';
+    
+    // Display welcome message if not Guest
+    if (username !== 'Guest') {
+      const welcomeElement = document.getElementById('welcomeMessage');
+      if (welcomeElement) {
+        welcomeElement.textContent = `Welcome, ${username}!`;
+      }
+    }
+    
+    // Redirect after 4 seconds
     setTimeout(() => {
       window.location.href = 'dashboard.html';
     }, 4000);
   </script>
 
+  <!-- Fix the logo path - use forward slashes -->
+  <!-- <link rel="icon" href="images/logo.jpeg"> already moved to head -->
+
 </body>
 </html>
-
