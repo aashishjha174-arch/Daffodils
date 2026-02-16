@@ -490,6 +490,20 @@ app.get('/admin/data', async (req, res) => {
     const users = await User.find().lean();
     const reviews = await Review.find().lean();
     
+    // Helper function for Nepal time
+    const formatNepalTime = (date) => {
+      return new Date(date).toLocaleString('en-US', { 
+        timeZone: 'Asia/Kathmandu',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      });
+    };
+    
     let html = `
     <!DOCTYPE html>
     <html>
@@ -502,24 +516,34 @@ app.get('/admin/data', async (req, res) => {
         table { border-collapse: collapse; width: 100%; margin-bottom: 30px; }
         th { background: #d4af37; color: #000; padding: 10px; text-align: left; }
         td { background: #222; padding: 8px; border-bottom: 1px solid #333; }
-        pre { background: #1a1a1a; padding: 10px; border-radius: 5px; overflow: auto; }
         .container { max-width: 1200px; margin: 0 auto; }
+        .note { color: #ffaa00; margin-bottom: 10px; font-style: italic; }
+        .badge {
+          display: inline-block;
+          padding: 3px 8px;
+          border-radius: 12px;
+          font-size: 12px;
+          font-weight: bold;
+        }
+        .badge-reply { background: #2a5f2a; color: #fff; }
+        .badge-report { background: #8b0000; color: #fff; }
       </style>
     </head>
     <body>
       <div class="container">
         <h1>📊 Daffodils Database Viewer</h1>
+        <div class="note">⏰ All times are in Nepal Time (UTC+5:45)</div>
         
         <h2>👥 Users (${users.length})</h2>
         <table>
           <tr>
             <th>Username</th>
-            <th>Created At</th>
+            <th>Created At (Nepal Time)</th>
           </tr>
           ${users.map(u => `
             <tr>
-              <td>${u.username}</td>
-              <td>${new Date(u.createdAt).toLocaleString()}</td>
+              <td><strong>${u.username}</strong></td>
+              <td>${formatNepalTime(u.createdAt)}</td>
             </tr>
           `).join('')}
         </table>
@@ -531,15 +555,15 @@ app.get('/admin/data', async (req, res) => {
             <th>Message</th>
             <th>Replies</th>
             <th>Reports</th>
-            <th>Date</th>
+            <th>Date (Nepal Time)</th>
           </tr>
           ${reviews.map(r => `
             <tr>
-              <td>${r.name}</td>
+              <td><strong>${r.name}</strong></td>
               <td>${r.message.substring(0, 50)}${r.message.length > 50 ? '...' : ''}</td>
-              <td>${r.replies?.length || 0}</td>
-              <td>${r.reports?.length || 0}</td>
-              <td>${new Date(r.createdAt).toLocaleString()}</td>
+              <td><span class="badge badge-reply">${r.replies?.length || 0}</span></td>
+              <td><span class="badge badge-report">${r.reports?.length || 0}</span></td>
+              <td>${formatNepalTime(r.createdAt)}</td>
             </tr>
           `).join('')}
         </table>
