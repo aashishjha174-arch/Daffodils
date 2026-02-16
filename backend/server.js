@@ -514,9 +514,9 @@ app.get('/admin/data', async (req, res) => {
         h1 { color: #d4af37; }
         h2 { color: #c2f3f3; margin-top: 30px; }
         table { border-collapse: collapse; width: 100%; margin-bottom: 30px; }
-        th { background: #d4af37; color: #000; padding: 10px; text-align: left; }
-        td { background: #222; padding: 8px; border-bottom: 1px solid #333; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        th { background: #d4af37; color: #000; padding: 12px; text-align: left; }
+        td { background: #222; padding: 12px; border-bottom: 1px solid #333; vertical-align: top; }
+        .container { max-width: 1400px; margin: 0 auto; }
         .note { color: #ffaa00; margin-bottom: 10px; font-style: italic; }
         .badge {
           display: inline-block;
@@ -527,6 +527,29 @@ app.get('/admin/data', async (req, res) => {
         }
         .badge-reply { background: #2a5f2a; color: #fff; }
         .badge-report { background: #8b0000; color: #fff; }
+        .message-cell {
+          max-width: 400px;
+          word-wrap: break-word;
+          white-space: pre-wrap;
+        }
+        .replies-section {
+          margin-top: 5px;
+          padding: 8px;
+          background: #333;
+          border-radius: 5px;
+          font-size: 0.9em;
+        }
+        .reply-item {
+          margin-bottom: 5px;
+          border-left: 2px solid #d4af37;
+          padding-left: 8px;
+        }
+        .view-toggle {
+          cursor: pointer;
+          color: #d4af37;
+          text-decoration: underline;
+          margin-left: 5px;
+        }
       </style>
     </head>
     <body>
@@ -557,23 +580,59 @@ app.get('/admin/data', async (req, res) => {
             <th>Reports</th>
             <th>Date (Nepal Time)</th>
           </tr>
-          ${reviews.map(r => `
+          ${reviews.map(r => {
+            // Get full replies with details
+            const repliesList = r.replies?.map(rep => 
+              `<div class="reply-item">
+                <strong>${rep.name}</strong> (${formatNepalTime(rep.createdAt)}): 
+                <span>${rep.message}</span>
+              </div>`
+            ).join('') || 'No replies';
+            
+            return `
             <tr>
               <td><strong>${r.name}</strong></td>
-              <td>${r.message.substring(0, 50)}${r.message.length > 50 ? '...' : ''}</td>
-              <td><span class="badge badge-reply">${r.replies?.length || 0}</span></td>
+              <td class="message-cell">
+                <div class="full-message">${r.message}</div>
+                ${r.message.length > 100 ? 
+                  `<span class="view-toggle" onclick="this.previousElementSibling.classList.toggle('full-message')">Show less</span>` 
+                  : ''}
+              </td>
+              <td>
+                <span class="badge badge-reply">${r.replies?.length || 0}</span>
+                ${r.replies?.length > 0 ? 
+                  `<div class="replies-section">${repliesList}</div>` 
+                  : ''}
+              </td>
               <td><span class="badge badge-report">${r.reports?.length || 0}</span></td>
               <td>${formatNepalTime(r.createdAt)}</td>
             </tr>
-          `).join('')}
+          `}).join('')}
         </table>
       </div>
+      
+      <script>
+        // Add toggle functionality for long messages
+        document.querySelectorAll('.view-toggle').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const msgDiv = this.previousElementSibling;
+            if (msgDiv.classList.contains('full-message')) {
+              msgDiv.classList.remove('full-message');
+              this.textContent = 'Show less';
+            } else {
+              msgDiv.classList.add('full-message');
+              this.textContent = 'Show full';
+            }
+          });
+        });
+      </script>
     </body>
     </html>
     `;
     
     res.send(html);
   } catch (err) {
+    console.error('Admin data error:', err);
     res.status(500).send('Error loading data');
   }
 });
