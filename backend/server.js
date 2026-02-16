@@ -484,7 +484,75 @@ app.delete('/reviews/:id', async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to delete review" });
   }
 });
-
+// Add this to your server.js - a simple data viewer
+app.get('/admin/data', async (req, res) => {
+  try {
+    const users = await User.find().lean();
+    const reviews = await Review.find().lean();
+    
+    let html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Daffodils Data Viewer</title>
+      <style>
+        body { font-family: Arial; background: #111; color: #fff; padding: 20px; }
+        h1 { color: #d4af37; }
+        h2 { color: #c2f3f3; margin-top: 30px; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 30px; }
+        th { background: #d4af37; color: #000; padding: 10px; text-align: left; }
+        td { background: #222; padding: 8px; border-bottom: 1px solid #333; }
+        pre { background: #1a1a1a; padding: 10px; border-radius: 5px; overflow: auto; }
+        .container { max-width: 1200px; margin: 0 auto; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>📊 Daffodils Database Viewer</h1>
+        
+        <h2>👥 Users (${users.length})</h2>
+        <table>
+          <tr>
+            <th>Username</th>
+            <th>Created At</th>
+          </tr>
+          ${users.map(u => `
+            <tr>
+              <td>${u.username}</td>
+              <td>${new Date(u.createdAt).toLocaleString()}</td>
+            </tr>
+          `).join('')}
+        </table>
+        
+        <h2>💬 Reviews (${reviews.length})</h2>
+        <table>
+          <tr>
+            <th>User</th>
+            <th>Message</th>
+            <th>Replies</th>
+            <th>Reports</th>
+            <th>Date</th>
+          </tr>
+          ${reviews.map(r => `
+            <tr>
+              <td>${r.name}</td>
+              <td>${r.message.substring(0, 50)}${r.message.length > 50 ? '...' : ''}</td>
+              <td>${r.replies?.length || 0}</td>
+              <td>${r.reports?.length || 0}</td>
+              <td>${new Date(r.createdAt).toLocaleString()}</td>
+            </tr>
+          `).join('')}
+        </table>
+      </div>
+    </body>
+    </html>
+    `;
+    
+    res.send(html);
+  } catch (err) {
+    res.status(500).send('Error loading data');
+  }
+});
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
