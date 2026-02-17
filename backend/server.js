@@ -4,8 +4,9 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const axios = require('axios');
 const crypto = require('crypto');
+const https = require('https'); // Added for IPv4 fix
 
-// Brevo API (instead of nodemailer)
+// Brevo API
 const SibApiV3Sdk = require('@getbrevo/brevo');
 
 const Review = require('./models/review');
@@ -25,15 +26,46 @@ mongoose.connect(process.env.MONGO_URI)
     process.exit(1);
   });
 
-// Initialize Brevo API
-let apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-let apiKey = apiInstance.authentications['apiKey'];
-apiKey.apiKey = process.env.BREVO_API_KEY;
-
+// ────────────────────────────────────────────────
+// Brevo API Configuration with IPv4 fix
+// ────────────────────────────────────────────────
 console.log("[DEBUG] Email credentials check:");
 console.log("[DEBUG] EMAIL_USER exists:", !!process.env.EMAIL_USER);
 console.log("[DEBUG] ADMIN_EMAIL exists:", !!process.env.ADMIN_EMAIL);
 console.log("[DEBUG] BREVO_API_KEY exists:", !!process.env.BREVO_API_KEY);
+
+// Initialize Brevo API with IPv4 preference
+let apiInstance;
+try {
+  // Create custom agent to force IPv4
+  const httpsAgent = new https.Agent({
+    family: 4,  // Force IPv4
+    keepAlive: true,
+    timeout: 10000
+  });
+
+  // Configure Brevo API client
+  const defaultClient = SibApiV3Sdk.ApiClient.instance;
+  defaultClient.basePath = 'https://api.brevo.com/v3';
+  defaultClient.defaultHeaders = { 
+    'api-key': process.env.BREVO_API_KEY,
+    'Content-Type': 'application/json'
+  };
+
+  // Override the request method to use IPv4 agent
+  const originalRequest = defaultClient.callApi;
+  defaultClient.callApi = function(path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType, callback) {
+    const options = {
+      agent: httpsAgent
+    };
+    return originalRequest.call(this, path, httpMethod, pathParams, queryParams, headerParams, formParams, bodyParam, authNames, contentTypes, accepts, returnType, callback, options);
+  };
+
+  apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+  console.log("[DEBUG] Brevo API initialized successfully with IPv4 force");
+} catch (err) {
+  console.error("[DEBUG] Brevo initialization error:", err);
+}
 
 // Simple auth middleware
 const authMiddleware = (req, res, next) => {
@@ -57,7 +89,7 @@ const authMiddleware = (req, res, next) => {
 };
 
 // ────────────────────────────────────────────────
-// Groq Moderation Check – Relaxed for class memories
+// Groq Moderation Check
 // ────────────────────────────────────────────────
 async function checkReviewToxicity(message) {
   const apiKey = process.env.GROQ_API_KEY;
@@ -67,7 +99,6 @@ async function checkReviewToxicity(message) {
     return { isSafe: true, reason: "No key", score: 0 };
   }
 
-  // Keyword blacklist for extreme abuses (instant block)
   const badWords = [
     'fuck', 'fucking', 'fucked', 'fucker', 'motherfucker',
     'madar', 'madarchod', 'madarchut', 'maachikne',
@@ -86,7 +117,6 @@ async function checkReviewToxicity(message) {
     }
   }
 
-  // AI check – very lenient prompt
   try {
     const response = await axios.post(
       'https://api.groq.com/openai/v1/chat/completions',
@@ -151,13 +181,20 @@ Respond ONLY with JSON:
 }
 
 // ────────────────────────────────────────────────
-// Email Alert for Blocked Reviews - Using Brevo API
+// Email Alert for Blocked Reviews
 // ────────────────────────────────────────────────
 async function sendAdminAlert(username, blockedReview, checkResult) {
   console.log("[DEBUG] ===== SEND ADMIN ALERT CALLED =====");
+  console.log("[DEBUG] Username:", username);
+  console.log("[DEBUG] Blocked Review:", blockedReview);
   
   if (!process.env.ADMIN_EMAIL || !process.env.EMAIL_USER || !process.env.BREVO_API_KEY) {
     console.warn("[EMAIL] Credentials missing – skipping alert");
+    console.log("[DEBUG] Missing:", {
+      adminEmail: !process.env.ADMIN_EMAIL,
+      emailUser: !process.env.EMAIL_USER,
+      brevoKey: !process.env.BREVO_API_KEY
+    });
     return;
   }
 
@@ -169,9 +206,10 @@ async function sendAdminAlert(username, blockedReview, checkResult) {
       email: process.env.EMAIL_USER 
     };
     sendSmtpEmail.to = [{ 
-      email: process.env.ADMIN_EMAIL 
+      email: process.env.ADMIN_EMAIL,
+      name: "Admin"
     }];
-    sendSmtpEmail.subject = `⚠️ Blocked Inappropriate Review by ${username}`;
+    sendSmtpEmail.subject = `⚠️ Blocked Review by ${username}`;
     sendSmtpEmail.htmlContent = `
       <h2 style="color:#d32f2f;">⚠️ Blocked Inappropriate Review</h2>
       <p><strong>Username:</strong> ${username}</p>
@@ -181,23 +219,23 @@ async function sendAdminAlert(username, blockedReview, checkResult) {
       <h3>Groq Judgment:</h3>
       <ul>
         <li><strong>Safe?</strong> ${checkResult.isSafe ? 'Yes' : 'No'}</li>
-        <li><strong>Score (0-10):</strong> ${checkResult.score}</li>
+        <li><strong>Score:</strong> ${checkResult.score}/10</li>
         <li><strong>Reason:</strong> ${checkResult.reason}</li>
       </ul>
       <p style="color:#555;">Review was NOT posted.</p>
-      <hr>
-      <small>Daffodils Public School – Batch 2082 Memorial</small>
     `;
     
+    console.log("[DEBUG] Attempting to send email via Brevo...");
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
     console.log(`[EMAIL] Admin alert sent for ${username}`, data);
   } catch (err) {
     console.error("[EMAIL] Failed to send:", err.response?.body || err.message);
+    console.error("[EMAIL] Full error:", err);
   }
 }
 
 // ────────────────────────────────────────────────
-// REPORT REVIEW + AUTO-DELETE ON 3 UNIQUE REPORTS
+// REPORT REVIEW + AUTO-DELETE
 // ────────────────────────────────────────────────
 app.post('/report-review', authMiddleware, async (req, res) => {
   const { reviewId } = req.body;
@@ -220,7 +258,6 @@ app.post('/report-review', authMiddleware, async (req, res) => {
       return res.status(404).json({ success: false, message: "Review not found" });
     }
 
-    // Prevent duplicate reports from same user/device
     const alreadyReported = review.reports.some(r =>
       r.reporterUsername === reporterUsername &&
       r.reporterIp === reporterIp &&
@@ -231,7 +268,6 @@ app.post('/report-review', authMiddleware, async (req, res) => {
       return res.status(400).json({ success: false, message: "You already reported this review" });
     }
 
-    // Add report
     review.reports.push({
       reporterUsername,
       reporterIp,
@@ -241,7 +277,6 @@ app.post('/report-review', authMiddleware, async (req, res) => {
 
     await review.save();
 
-    // AUTO-DELETE CHECK - Check if 3+ unique reports
     const uniqueReporters = new Set();
     review.reports.forEach(report => {
       const key = `${report.reporterUsername}|${report.reporterIp}|${report.reporterFingerprint}`;
@@ -250,31 +285,14 @@ app.post('/report-review', authMiddleware, async (req, res) => {
 
     if (uniqueReporters.size >= 3) {
       console.log(`[AUTO-DELETE] Review ${reviewId} deleted – ${uniqueReporters.size} unique reports`);
-      
-      // Store info before deletion
       const reviewName = review.name;
       const reviewMessage = review.message;
-      
-      // Delete the review
       await Review.findByIdAndDelete(reviewId);
-      
-      // Send email about auto-delete
-      await sendAdminAlertForReport(
-        reporterUsername, 
-        reviewName, 
-        reviewMessage + "\n\n[This review was AUTO-DELETED due to 3+ reports]", 
-        reviewId
-      );
-      
-      return res.json({ 
-        success: true, 
-        message: "Review has been removed due to multiple reports." 
-      });
+      await sendAdminAlertForReport(reporterUsername, reviewName, reviewMessage + " [AUTO-DELETED]", reviewId);
+      return res.json({ success: true, message: "Review removed due to multiple reports." });
     }
 
-    // Send email to admin about the report
     await sendAdminAlertForReport(reporterUsername, review.name, review.message, reviewId);
-
     res.json({ success: true, message: "Report sent to admin. Thank you!" });
   } catch (err) {
     console.error("Report error:", err);
@@ -282,7 +300,7 @@ app.post('/report-review', authMiddleware, async (req, res) => {
   }
 });
 
-// Email for reports - Using Brevo API
+// Email for reports
 async function sendAdminAlertForReport(reporter, uploader, reviewText, reviewId) {
   if (!process.env.ADMIN_EMAIL || !process.env.EMAIL_USER || !process.env.BREVO_API_KEY) {
     console.warn("[REPORT EMAIL] Credentials missing");
@@ -307,9 +325,6 @@ async function sendAdminAlertForReport(reporter, uploader, reviewText, reviewId)
       <p><strong>Review ID:</strong> ${reviewId}</p>
       <p><strong>Review text:</strong></p>
       <blockquote style="border-left:4px solid #d32f2f; padding-left:15px; margin:10px 0;">${reviewText}</blockquote>
-      <p style="color:#555;">Please review and take action if needed.</p>
-      <hr>
-      <small>Daffodils Public School – Batch 2082 Memorial</small>
     `;
     
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
@@ -320,12 +335,10 @@ async function sendAdminAlertForReport(reporter, uploader, reviewText, reviewId)
 }
 
 // ────────────────────────────────────────────────
-// TEST ENDPOINTS
+// TEST ENDPOINTS - UPDATED to check BREVO_API_KEY
 // ────────────────────────────────────────────────
 
-// Test moderation endpoint
 app.get('/test-moderation/:message', async (req, res) => {
-  console.log("[TEST] Testing moderation for:", req.params.message);
   const result = await checkReviewToxicity(req.params.message);
   res.json({
     message: req.params.message,
@@ -333,7 +346,6 @@ app.get('/test-moderation/:message', async (req, res) => {
   });
 });
 
-// Test email endpoint with Brevo
 app.get('/test-email', async (req, res) => {
   console.log("[TEST] Testing email functionality with Brevo");
   
@@ -363,9 +375,7 @@ app.get('/test-email', async (req, res) => {
   }
 });
 
-// Test GROQ endpoint
 app.get('/test-groq', async (req, res) => {
-  console.log("[TEST] Testing GROQ API");
   const result = await checkReviewToxicity("This is a test message");
   res.json({
     groqKeyExists: !!process.env.GROQ_API_KEY,
@@ -373,19 +383,19 @@ app.get('/test-groq', async (req, res) => {
   });
 });
 
-// Test environment variables
+// UPDATED test-env endpoint to show BREVO_API_KEY
 app.get('/test-env', (req, res) => {
   res.json({
     EMAIL_USER_exists: !!process.env.EMAIL_USER,
     ADMIN_EMAIL_exists: !!process.env.ADMIN_EMAIL,
-    BREVO_API_KEY_exists: !!process.env.BREVO_API_KEY,
+    BREVO_API_KEY_exists: !!process.env.BREVO_API_KEY,  // NOW INCLUDED!
     GROQ_API_KEY_exists: !!process.env.GROQ_API_KEY,
     MONGO_URI_exists: !!process.env.MONGO_URI
   });
 });
 
 // ────────────────────────────────────────────────
-// SIGNUP – passwordless
+// SIGNUP
 // ────────────────────────────────────────────────
 app.post('/signup', async (req, res) => {
   const { username } = req.body;
@@ -427,7 +437,7 @@ app.post('/signup', async (req, res) => {
 });
 
 // ────────────────────────────────────────────────
-// LOGIN – passwordless
+// LOGIN
 // ────────────────────────────────────────────────
 app.post('/login', async (req, res) => {
   const { username } = req.body;
@@ -459,7 +469,7 @@ app.post('/login', async (req, res) => {
 });
 
 // ────────────────────────────────────────────────
-// GET REVIEWS
+// REVIEWS
 // ────────────────────────────────────────────────
 app.get('/reviews', async (req, res) => {
   try {
@@ -471,9 +481,6 @@ app.get('/reviews', async (req, res) => {
   }
 });
 
-// ────────────────────────────────────────────────
-// POST REVIEW – WITH Groq MODERATION + EMAIL ALERT
-// ────────────────────────────────────────────────
 app.post('/reviews', authMiddleware, async (req, res) => {
   const { message } = req.body;
 
@@ -482,32 +489,19 @@ app.post('/reviews', authMiddleware, async (req, res) => {
   }
 
   const trimmedMessage = message.trim();
-
-  // Run Groq moderation
   const check = await checkReviewToxicity(trimmedMessage);
 
   console.log("[MODERATION] Final check result:", check);
 
-  // Block if flagged or high score
   if (!check.isSafe || check.score >= 5) {
     await sendAdminAlert(req.user.username, trimmedMessage, check);
-
     return res.status(403).json({
       success: false,
       message: "blocked_toxic",
-      warning: `Your review appears to contain negative, aggressive or controversial content.
-
-This is a memorial space for Class 10 – Batch 2082.
-Please keep your words kind, positive or constructive.
-
-We appreciate suggestions and happy memories.
-Thank you for helping maintain peace and harmony here.
-
-— Daffodils Public School 2082`
+      warning: `Your review appears to contain negative content. Please keep your words kind.`
     });
   }
 
-  // Safe – save
   try {
     const review = new Review({
       name: req.user.username,
@@ -521,7 +515,7 @@ Thank you for helping maintain peace and harmony here.
   }
 });
 
-// Ultra-light health check for uptime monitors
+// Health check
 app.get('/ping', (req, res) => {
   res.status(200).send('pong');
 });
@@ -533,7 +527,7 @@ app.post('/reviews/:id/reply', async (req, res) => {
   const { name, message } = req.body;
 
   if (!name || !message || !name.trim() || !message.trim()) {
-    return res.status(400).json({ success: false, message: "Name and message required for reply" });
+    return res.status(400).json({ success: false, message: "Name and message required" });
   }
 
   try {
@@ -563,7 +557,7 @@ app.delete('/reviews/:id', async (req, res) => {
     }
     res.json({ success: true, message: "Review deleted" });
   } catch (err) {
-    console.error("Delete review error:", err);
+    console.error("Delete error:", err);
     res.status(500).json({ success: false, message: "Failed to delete review" });
   }
 });
@@ -610,83 +604,32 @@ app.get('/admin/data', async (req, res) => {
         }
         .badge-reply { background: #2a5f2a; color: #fff; }
         .badge-report { background: #8b0000; color: #fff; }
-        .message-cell {
-          max-width: 400px;
-          word-wrap: break-word;
-          white-space: pre-wrap;
-        }
-        .replies-section {
-          margin-top: 5px;
-          padding: 8px;
-          background: #333;
-          border-radius: 5px;
-          font-size: 0.9em;
-        }
-        .reply-item {
-          margin-bottom: 5px;
-          border-left: 2px solid #d4af37;
-          padding-left: 8px;
-        }
-        .view-toggle {
-          cursor: pointer;
-          color: #d4af37;
-          text-decoration: underline;
-          margin-left: 5px;
-        }
+        .message-cell { max-width: 400px; word-wrap: break-word; }
+        .replies-section { margin-top: 5px; padding: 8px; background: #333; border-radius: 5px; }
+        .reply-item { margin-bottom: 5px; border-left: 2px solid #d4af37; padding-left: 8px; }
       </style>
     </head>
     <body>
       <div class="container">
         <h1>📊 Daffodils Database Viewer</h1>
-        <div class="note">⏰ All times are in Nepal Time (UTC+5:45)</div>
+        <div class="note">⏰ All times in Nepal Time (UTC+5:45)</div>
         
         <h2>👥 Users (${users.length})</h2>
         <table>
-          <tr>
-            <th>Username</th>
-            <th>Created At (Nepal Time)</th>
-          </tr>
-          ${users.map(u => `
-            <tr>
-              <td><strong>${u.username}</strong></td>
-              <td>${formatNepalTime(u.createdAt)}</td>
-            </tr>
-          `).join('')}
+          <tr><th>Username</th><th>Created At</th></tr>
+          ${users.map(u => `<tr><td>${u.username}</td><td>${formatNepalTime(u.createdAt)}</td></tr>`).join('')}
         </table>
         
         <h2>💬 Reviews (${reviews.length})</h2>
         <table>
-          <tr>
-            <th>User</th>
-            <th>Message</th>
-            <th>Replies</th>
-            <th>Reports</th>
-            <th>Date (Nepal Time)</th>
-          </tr>
-          ${reviews.map(r => {
-            const repliesList = r.replies?.map(rep => 
-              `<div class="reply-item">
-                <strong>${rep.name}</strong> (${formatNepalTime(rep.createdAt)}): 
-                <span>${rep.message}</span>
-              </div>`
-            ).join('') || 'No replies';
-            
-            return `
-            <tr>
-              <td><strong>${r.name}</strong></td>
-              <td class="message-cell">
-                <div>${r.message}</div>
-              </td>
-              <td>
-                <span class="badge badge-reply">${r.replies?.length || 0}</span>
-                ${r.replies?.length > 0 ? 
-                  `<div class="replies-section">${repliesList}</div>` 
-                  : ''}
-              </td>
-              <td><span class="badge badge-report">${r.reports?.length || 0}</span></td>
-              <td>${formatNepalTime(r.createdAt)}</td>
-            </tr>
-          `}).join('')}
+          <tr><th>User</th><th>Message</th><th>Replies</th><th>Reports</th><th>Date</th></tr>
+          ${reviews.map(r => `<tr>
+            <td>${r.name}</td>
+            <td>${r.message.substring(0, 100)}${r.message.length > 100 ? '...' : ''}</td>
+            <td>${r.replies?.length || 0}</td>
+            <td>${r.reports?.length || 0}</td>
+            <td>${formatNepalTime(r.createdAt)}</td>
+          </tr>`).join('')}
         </table>
       </div>
     </body>
