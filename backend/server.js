@@ -3,8 +3,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const axios = require('axios');
-const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+
+// Brevo API (instead of nodemailer)
+const SibApiV3Sdk = require('@getbrevo/brevo');
 
 const Review = require('./models/review');
 const User = require('./models/user');
@@ -22,6 +24,16 @@ mongoose.connect(process.env.MONGO_URI)
     console.error("MongoDB connection error:", err);
     process.exit(1);
   });
+
+// Initialize Brevo API
+let apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+let apiKey = apiInstance.authentications['apiKey'];
+apiKey.apiKey = process.env.BREVO_API_KEY;
+
+console.log("[DEBUG] Email credentials check:");
+console.log("[DEBUG] EMAIL_USER exists:", !!process.env.EMAIL_USER);
+console.log("[DEBUG] ADMIN_EMAIL exists:", !!process.env.ADMIN_EMAIL);
+console.log("[DEBUG] BREVO_API_KEY exists:", !!process.env.BREVO_API_KEY);
 
 // Simple auth middleware
 const authMiddleware = (req, res, next) => {
@@ -139,74 +151,28 @@ Respond ONLY with JSON:
 }
 
 // ────────────────────────────────────────────────
-// Email Alert for Blocked Reviews - FIXED with port 2525
+// Email Alert for Blocked Reviews - Using Brevo API
 // ────────────────────────────────────────────────
-console.log("[DEBUG] Email credentials check:");
-console.log("[DEBUG] EMAIL_USER exists:", !!process.env.EMAIL_USER);
-console.log("[DEBUG] EMAIL_PASS exists:", !!process.env.EMAIL_PASS);
-console.log("[DEBUG] ADMIN_EMAIL exists:", !!process.env.ADMIN_EMAIL);
-
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 2525,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  },
-  tls: {
-    rejectUnauthorized: false
-  }
-});
-
-// Verify transporter configuration
-transporter.verify(function(error, success) {
-  if (error) {
-    console.log("[DEBUG] Transporter verification failed:", error);
-  } else {
-    console.log("[DEBUG] Transporter is ready to send emails");
-  }
-});
-
 async function sendAdminAlert(username, blockedReview, checkResult) {
   console.log("[DEBUG] ===== SEND ADMIN ALERT CALLED =====");
-  console.log("[DEBUG] Username:", username);
-  console.log("[DEBUG] Blocked Review:", blockedReview);
-  console.log("[DEBUG] Check Result:", checkResult);
   
-  const adminEmail = process.env.ADMIN_EMAIL;
-
-  if (!adminEmail || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  if (!process.env.ADMIN_EMAIL || !process.env.EMAIL_USER || !process.env.BREVO_API_KEY) {
     console.warn("[EMAIL] Credentials missing – skipping alert");
-    console.log("[DEBUG] Missing credentials:", {
-      adminEmail: !adminEmail,
-      emailUser: !process.env.EMAIL_USER,
-      emailPass: !process.env.EMAIL_PASS
-    });
     return;
   }
 
-  console.log("[DEBUG] Attempting to send email via transporter");
-
-  const mailOptions = {
-    from: `"Daffodils 2082 Alert" <${process.env.EMAIL_USER}>`,
-    to: adminEmail,
-    subject: `⚠️ Blocked Inappropriate Review by ${username}`,
-    text: `
-Blocked Review Attempt
----------------------
-Username: ${username}
-Time: ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Kathmandu' })}
-Review: "${blockedReview}"
-
-Groq Result:
-- Safe: ${checkResult.isSafe ? 'Yes' : 'No'}
-- Score: ${checkResult.score}/10
-- Reason: ${checkResult.reason}
-
-Review was NOT posted.
-    `,
-    html: `
+  try {
+    let sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+    
+    sendSmtpEmail.sender = { 
+      name: "Daffodils 2082", 
+      email: process.env.EMAIL_USER 
+    };
+    sendSmtpEmail.to = [{ 
+      email: process.env.ADMIN_EMAIL 
+    }];
+    sendSmtpEmail.subject = `⚠️ Blocked Inappropriate Review by ${username}`;
+    sendSmtpEmail.htmlContent = `
       <h2 style="color:#d32f2f;">⚠️ Blocked Inappropriate Review</h2>
       <p><strong>Username:</strong> ${username}</p>
       <p><strong>Time:</strong> ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Kathmandu' })}</p>
@@ -221,20 +187,12 @@ Review was NOT posted.
       <p style="color:#555;">Review was NOT posted.</p>
       <hr>
       <small>Daffodils Public School – Batch 2082 Memorial</small>
-    `
-  };
-
-  try {
-    console.log("[DEBUG] Calling transporter.sendMail...");
-    const info = await transporter.sendMail(mailOptions);
-    console.log("[DEBUG] Email sent successfully! Response:", info.response);
-    console.log(`[EMAIL] Admin alert sent for ${username}`);
+    `;
+    
+    const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
+    console.log(`[EMAIL] Admin alert sent for ${username}`, data);
   } catch (err) {
-    console.error("[DEBUG] EMAIL ERROR - Full error object:", err);
-    console.error("[DEBUG] Error code:", err.code);
-    console.error("[DEBUG] Error command:", err.command);
-    console.error("[DEBUG] Error response:", err.response);
-    console.error("[DEBUG] Error responseCode:", err.responseCode);
+    console.error("[EMAIL] Failed to send:", err.response?.body || err.message);
   }
 }
 
@@ -324,30 +282,25 @@ app.post('/report-review', authMiddleware, async (req, res) => {
   }
 });
 
-// Email for reports - FIXED with same transporter
+// Email for reports - Using Brevo API
 async function sendAdminAlertForReport(reporter, uploader, reviewText, reviewId) {
-  const adminEmail = process.env.ADMIN_EMAIL;
-
-  if (!adminEmail || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  if (!process.env.ADMIN_EMAIL || !process.env.EMAIL_USER || !process.env.BREVO_API_KEY) {
     console.warn("[REPORT EMAIL] Credentials missing");
     return;
   }
 
-  const mailOptions = {
-    from: `"Daffodils 2082 Report" <${process.env.EMAIL_USER}>`,
-    to: adminEmail,
-    subject: `🚩 Review Reported by ${reporter}`,
-    text: `
-Review Reported!
-----------------
-Reported by: ${reporter}
-Review by: ${uploader}
-Review ID: ${reviewId}
-Review text: "${reviewText}"
-
-Action needed: Please review and delete if inappropriate.
-    `,
-    html: `
+  try {
+    let sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+    
+    sendSmtpEmail.sender = { 
+      name: "Daffodils 2082", 
+      email: process.env.EMAIL_USER 
+    };
+    sendSmtpEmail.to = [{ 
+      email: process.env.ADMIN_EMAIL 
+    }];
+    sendSmtpEmail.subject = `🚩 Review Reported by ${reporter}`;
+    sendSmtpEmail.htmlContent = `
       <h2 style="color:#d32f2f;">🚩 Review Reported</h2>
       <p><strong>Reported by:</strong> ${reporter}</p>
       <p><strong>Review by:</strong> ${uploader}</p>
@@ -357,80 +310,75 @@ Action needed: Please review and delete if inappropriate.
       <p style="color:#555;">Please review and take action if needed.</p>
       <hr>
       <small>Daffodils Public School – Batch 2082 Memorial</small>
-    `
-  };
-
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log(`[REPORT EMAIL] Sent for review ${reviewId}`);
+    `;
+    
+    const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
+    console.log(`[REPORT EMAIL] Sent for review ${reviewId}`, data);
   } catch (err) {
-    console.error("[REPORT EMAIL] Failed:", err.message);
+    console.error("[REPORT EMAIL] Failed:", err.response?.body || err.message);
   }
 }
 
 // ────────────────────────────────────────────────
-// TEST ENDPOINTS - Add these for debugging
+// TEST ENDPOINTS
 // ────────────────────────────────────────────────
 
 // Test moderation endpoint
 app.get('/test-moderation/:message', async (req, res) => {
   console.log("[TEST] Testing moderation for:", req.params.message);
   const result = await checkReviewToxicity(req.params.message);
-  console.log("[TEST] Moderation result:", result);
   res.json({
     message: req.params.message,
     moderationResult: result
   });
 });
 
-// Test email endpoint
+// Test email endpoint with Brevo
 app.get('/test-email', async (req, res) => {
-  console.log("[TEST] Testing email functionality");
+  console.log("[TEST] Testing email functionality with Brevo");
   
   try {
-    const testMailOptions = {
-      from: `"Test" <${process.env.EMAIL_USER}>`,
-      to: process.env.ADMIN_EMAIL,
-      subject: "Test Email from Daffodils",
-      text: "If you receive this, email is working!",
-      html: "<h1>Test Email</h1><p>If you receive this, email is working!</p>"
-    };
+    let sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
     
-    console.log("[TEST] Attempting to send test email...");
-    const info = await transporter.sendMail(testMailOptions);
-    console.log("[TEST] Email sent successfully:", info.response);
+    sendSmtpEmail.sender = { 
+      name: "Daffodils Test", 
+      email: process.env.EMAIL_USER 
+    };
+    sendSmtpEmail.to = [{ 
+      email: process.env.ADMIN_EMAIL 
+    }];
+    sendSmtpEmail.subject = "Test Email from Daffodils";
+    sendSmtpEmail.htmlContent = `
+      <h1>✅ Test Email</h1>
+      <p>If you receive this, Brevo is working perfectly!</p>
+      <p>Time: ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Kathmandu' })}</p>
+    `;
+    
+    const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
+    console.log("[TEST] Email sent successfully:", data);
     res.send("✅ Email sent successfully! Check your inbox.");
   } catch (err) {
-    console.error("[TEST] Email failed:", err);
-    res.status(500).send("❌ Email failed: " + err.message + " | Code: " + err.code);
+    console.error("[TEST] Email failed:", err.response?.body || err.message);
+    res.status(500).send("❌ Email failed: " + JSON.stringify(err.response?.body || err.message));
   }
 });
 
 // Test GROQ endpoint
 app.get('/test-groq', async (req, res) => {
   console.log("[TEST] Testing GROQ API");
-  console.log("[TEST] GROQ_API_KEY exists:", !!process.env.GROQ_API_KEY);
-  
-  try {
-    const result = await checkReviewToxicity("This is a test message");
-    res.json({
-      groqKeyExists: !!process.env.GROQ_API_KEY,
-      moderationResult: result
-    });
-  } catch (err) {
-    res.status(500).json({
-      error: err.message,
-      groqKeyExists: !!process.env.GROQ_API_KEY
-    });
-  }
+  const result = await checkReviewToxicity("This is a test message");
+  res.json({
+    groqKeyExists: !!process.env.GROQ_API_KEY,
+    moderationResult: result
+  });
 });
 
 // Test environment variables
 app.get('/test-env', (req, res) => {
   res.json({
     EMAIL_USER_exists: !!process.env.EMAIL_USER,
-    EMAIL_PASS_exists: !!process.env.EMAIL_PASS,
     ADMIN_EMAIL_exists: !!process.env.ADMIN_EMAIL,
+    BREVO_API_KEY_exists: !!process.env.BREVO_API_KEY,
     GROQ_API_KEY_exists: !!process.env.GROQ_API_KEY,
     MONGO_URI_exists: !!process.env.MONGO_URI
   });
@@ -448,7 +396,6 @@ app.post('/signup', async (req, res) => {
 
   const cleanUsername = username.trim().toLowerCase();
 
-  // Optional: extra validation (match your schema regex)
   if (!/^[a-zA-Z0-9_.-]+$/.test(cleanUsername)) {
     return res.status(400).json({ success: false, message: "Username can only contain letters, numbers, underscores, dots and hyphens" });
   }
@@ -472,13 +419,9 @@ app.post('/signup', async (req, res) => {
     });
   } catch (err) {
     console.error("Signup error:", err);
-
-    // Handle MongoDB duplicate key error specifically
-    if (err.code === 11000) { // duplicate key
+    if (err.code === 11000) {
       return res.status(409).json({ success: false, message: "Username already taken" });
     }
-
-    // Other errors (validation, DB crash, etc.)
     return res.status(500).json({ success: false, message: "Server error during signup – try again" });
   }
 });
@@ -631,7 +574,6 @@ app.get('/admin/data', async (req, res) => {
     const users = await User.find().lean();
     const reviews = await Review.find().lean();
     
-    // Helper function for Nepal time
     const formatNepalTime = (date) => {
       return new Date(date).toLocaleString('en-US', { 
         timeZone: 'Asia/Kathmandu',
@@ -733,10 +675,7 @@ app.get('/admin/data', async (req, res) => {
             <tr>
               <td><strong>${r.name}</strong></td>
               <td class="message-cell">
-                <div class="full-message">${r.message}</div>
-                ${r.message.length > 100 ? 
-                  `<span class="view-toggle" onclick="this.previousElementSibling.classList.toggle('full-message')">Show less</span>` 
-                  : ''}
+                <div>${r.message}</div>
               </td>
               <td>
                 <span class="badge badge-reply">${r.replies?.length || 0}</span>
@@ -750,21 +689,6 @@ app.get('/admin/data', async (req, res) => {
           `}).join('')}
         </table>
       </div>
-      
-      <script>
-        document.querySelectorAll('.view-toggle').forEach(btn => {
-          btn.addEventListener('click', function() {
-            const msgDiv = this.previousElementSibling;
-            if (msgDiv.classList.contains('full-message')) {
-              msgDiv.classList.remove('full-message');
-              this.textContent = 'Show less';
-            } else {
-              msgDiv.classList.add('full-message');
-              this.textContent = 'Show full';
-            }
-          });
-        });
-      </script>
     </body>
     </html>
     `;
