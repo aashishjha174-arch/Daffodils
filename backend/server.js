@@ -3,9 +3,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const axios = require('axios');
-const crypto = require('crypto');
-
-// Brevo API (instead of nodemailer)
 const SibApiV3Sdk = require('@getbrevo/brevo');
 
 const Review = require('./models/review');
