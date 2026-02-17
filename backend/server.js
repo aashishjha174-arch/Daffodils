@@ -64,7 +64,6 @@ async function checkReviewToxicity(message) {
     'chutiya', 'chut', 'ch***ya',
     'beti', 'betichod', 'b@stard',
     'kill', 'marne', 'marau', 'maar', 'mar',
-    // Add more Nepali/Hindi/English abuses here
   ];
 
   const lowerMessage = message.toLowerCase();
@@ -140,13 +139,18 @@ Respond ONLY with JSON:
 }
 
 // ────────────────────────────────────────────────
-// Email Alert for Blocked Reviews
+// Email Alert for Blocked Reviews - FIXED with port 2525
 // ────────────────────────────────────────────────
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 2525,  // CRITICAL FIX: Using port 2525 instead of default SMTP ports
+  secure: false, // Port 2525 uses TLS, not SSL
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
+  },
+  tls: {
+    rejectUnauthorized: false // Helps with connection issues
   }
 });
 
@@ -245,9 +249,40 @@ app.post('/report-review', authMiddleware, async (req, res) => {
       reportedAt: new Date()
     });
 
-    await review.save(); // triggers pre-save hook for auto-delete check
+    await review.save();
 
-    // Send email to admin
+    // AUTO-DELETE CHECK - Check if 3+ unique reports
+    const uniqueReporters = new Set();
+    review.reports.forEach(report => {
+      const key = `${report.reporterUsername}|${report.reporterIp}|${report.reporterFingerprint}`;
+      uniqueReporters.add(key);
+    });
+
+    if (uniqueReporters.size >= 3) {
+      console.log(`[AUTO-DELETE] Review ${reviewId} deleted – ${uniqueReporters.size} unique reports`);
+      
+      // Store info before deletion
+      const reviewName = review.name;
+      const reviewMessage = review.message;
+      
+      // Delete the review
+      await Review.findByIdAndDelete(reviewId);
+      
+      // Send email about auto-delete
+      await sendAdminAlertForReport(
+        reporterUsername, 
+        reviewName, 
+        reviewMessage + "\n\n[This review was AUTO-DELETED due to 3+ reports]", 
+        reviewId
+      );
+      
+      return res.json({ 
+        success: true, 
+        message: "Review has been removed due to multiple reports." 
+      });
+    }
+
+    // Send email to admin about the report
     await sendAdminAlertForReport(reporterUsername, review.name, review.message, reviewId);
 
     res.json({ success: true, message: "Report sent to admin. Thank you!" });
@@ -257,7 +292,7 @@ app.post('/report-review', authMiddleware, async (req, res) => {
   }
 });
 
-// Email for reports
+// Email for reports - FIXED with same transporter
 async function sendAdminAlertForReport(reporter, uploader, reviewText, reviewId) {
   const adminEmail = process.env.ADMIN_EMAIL;
 
@@ -442,12 +477,14 @@ Thank you for helping maintain peace and harmony here.
     res.status(500).json({ success: false, message: "Failed to submit review" });
   }
 });
+
 // Ultra-light health check for uptime monitors
 app.get('/ping', (req, res) => {
   res.status(200).send('pong');
 });
+
 // ────────────────────────────────────────────────
-// REPLY & DELETE – unchanged
+// REPLY & DELETE
 // ────────────────────────────────────────────────
 app.post('/reviews/:id/reply', async (req, res) => {
   const { name, message } = req.body;
@@ -487,7 +524,8 @@ app.delete('/reviews/:id', async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to delete review" });
   }
 });
-// Add this to your server.js - a simple data viewer
+
+// Admin data viewer
 app.get('/admin/data', async (req, res) => {
   try {
     const users = await User.find().lean();
@@ -584,7 +622,6 @@ app.get('/admin/data', async (req, res) => {
             <th>Date (Nepal Time)</th>
           </tr>
           ${reviews.map(r => {
-            // Get full replies with details
             const repliesList = r.replies?.map(rep => 
               `<div class="reply-item">
                 <strong>${rep.name}</strong> (${formatNepalTime(rep.createdAt)}): 
@@ -615,7 +652,6 @@ app.get('/admin/data', async (req, res) => {
       </div>
       
       <script>
-        // Add toggle functionality for long messages
         document.querySelectorAll('.view-toggle').forEach(btn => {
           btn.addEventListener('click', function() {
             const msgDiv = this.previousElementSibling;
@@ -639,6 +675,7 @@ app.get('/admin/data', async (req, res) => {
     res.status(500).send('Error loading data');
   }
 });
+
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
