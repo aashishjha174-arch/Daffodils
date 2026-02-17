@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const axios = require('axios');
 const nodemailer = require('nodemailer');
-const crypto = require('crypto'); // for fingerprint
+const crypto = require('crypto');
 
 const Review = require('./models/review');
 const User = require('./models/user');
@@ -141,26 +141,52 @@ Respond ONLY with JSON:
 // ────────────────────────────────────────────────
 // Email Alert for Blocked Reviews - FIXED with port 2525
 // ────────────────────────────────────────────────
+console.log("[DEBUG] Email credentials check:");
+console.log("[DEBUG] EMAIL_USER exists:", !!process.env.EMAIL_USER);
+console.log("[DEBUG] EMAIL_PASS exists:", !!process.env.EMAIL_PASS);
+console.log("[DEBUG] ADMIN_EMAIL exists:", !!process.env.ADMIN_EMAIL);
+
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 2525,  // CRITICAL FIX: Using port 2525 instead of default SMTP ports
-  secure: false, // Port 2525 uses TLS, not SSL
+  port: 2525,
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
   },
   tls: {
-    rejectUnauthorized: false // Helps with connection issues
+    rejectUnauthorized: false
+  }
+});
+
+// Verify transporter configuration
+transporter.verify(function(error, success) {
+  if (error) {
+    console.log("[DEBUG] Transporter verification failed:", error);
+  } else {
+    console.log("[DEBUG] Transporter is ready to send emails");
   }
 });
 
 async function sendAdminAlert(username, blockedReview, checkResult) {
+  console.log("[DEBUG] ===== SEND ADMIN ALERT CALLED =====");
+  console.log("[DEBUG] Username:", username);
+  console.log("[DEBUG] Blocked Review:", blockedReview);
+  console.log("[DEBUG] Check Result:", checkResult);
+  
   const adminEmail = process.env.ADMIN_EMAIL;
 
   if (!adminEmail || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     console.warn("[EMAIL] Credentials missing – skipping alert");
+    console.log("[DEBUG] Missing credentials:", {
+      adminEmail: !adminEmail,
+      emailUser: !process.env.EMAIL_USER,
+      emailPass: !process.env.EMAIL_PASS
+    });
     return;
   }
+
+  console.log("[DEBUG] Attempting to send email via transporter");
 
   const mailOptions = {
     from: `"Daffodils 2082 Alert" <${process.env.EMAIL_USER}>`,
@@ -199,10 +225,16 @@ Review was NOT posted.
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    console.log("[DEBUG] Calling transporter.sendMail...");
+    const info = await transporter.sendMail(mailOptions);
+    console.log("[DEBUG] Email sent successfully! Response:", info.response);
     console.log(`[EMAIL] Admin alert sent for ${username}`);
   } catch (err) {
-    console.error("[EMAIL] Failed to send:", err.message);
+    console.error("[DEBUG] EMAIL ERROR - Full error object:", err);
+    console.error("[DEBUG] Error code:", err.code);
+    console.error("[DEBUG] Error command:", err.command);
+    console.error("[DEBUG] Error response:", err.response);
+    console.error("[DEBUG] Error responseCode:", err.responseCode);
   }
 }
 
@@ -335,6 +367,74 @@ Action needed: Please review and delete if inappropriate.
     console.error("[REPORT EMAIL] Failed:", err.message);
   }
 }
+
+// ────────────────────────────────────────────────
+// TEST ENDPOINTS - Add these for debugging
+// ────────────────────────────────────────────────
+
+// Test moderation endpoint
+app.get('/test-moderation/:message', async (req, res) => {
+  console.log("[TEST] Testing moderation for:", req.params.message);
+  const result = await checkReviewToxicity(req.params.message);
+  console.log("[TEST] Moderation result:", result);
+  res.json({
+    message: req.params.message,
+    moderationResult: result
+  });
+});
+
+// Test email endpoint
+app.get('/test-email', async (req, res) => {
+  console.log("[TEST] Testing email functionality");
+  
+  try {
+    const testMailOptions = {
+      from: `"Test" <${process.env.EMAIL_USER}>`,
+      to: process.env.ADMIN_EMAIL,
+      subject: "Test Email from Daffodils",
+      text: "If you receive this, email is working!",
+      html: "<h1>Test Email</h1><p>If you receive this, email is working!</p>"
+    };
+    
+    console.log("[TEST] Attempting to send test email...");
+    const info = await transporter.sendMail(testMailOptions);
+    console.log("[TEST] Email sent successfully:", info.response);
+    res.send("✅ Email sent successfully! Check your inbox.");
+  } catch (err) {
+    console.error("[TEST] Email failed:", err);
+    res.status(500).send("❌ Email failed: " + err.message + " | Code: " + err.code);
+  }
+});
+
+// Test GROQ endpoint
+app.get('/test-groq', async (req, res) => {
+  console.log("[TEST] Testing GROQ API");
+  console.log("[TEST] GROQ_API_KEY exists:", !!process.env.GROQ_API_KEY);
+  
+  try {
+    const result = await checkReviewToxicity("This is a test message");
+    res.json({
+      groqKeyExists: !!process.env.GROQ_API_KEY,
+      moderationResult: result
+    });
+  } catch (err) {
+    res.status(500).json({
+      error: err.message,
+      groqKeyExists: !!process.env.GROQ_API_KEY
+    });
+  }
+});
+
+// Test environment variables
+app.get('/test-env', (req, res) => {
+  res.json({
+    EMAIL_USER_exists: !!process.env.EMAIL_USER,
+    EMAIL_PASS_exists: !!process.env.EMAIL_PASS,
+    ADMIN_EMAIL_exists: !!process.env.ADMIN_EMAIL,
+    GROQ_API_KEY_exists: !!process.env.GROQ_API_KEY,
+    MONGO_URI_exists: !!process.env.MONGO_URI
+  });
+});
 
 // ────────────────────────────────────────────────
 // SIGNUP – passwordless
