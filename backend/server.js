@@ -501,20 +501,89 @@ app.delete('/reviews/:id', async (req, res) => {
 });
 
 // ────────────────────────────────────────────────
-// ADMIN DATA – view all users & reviews
+// ADMIN DATA – view all users & reviews (HTML dashboard)
 // ────────────────────────────────────────────────
 app.get('/admin/data', async (req, res) => {
   const key = req.query.key || req.headers['x-admin-key'];
   if (!process.env.ADMIN_KEY || key !== process.env.ADMIN_KEY) {
-    return res.status(401).json({ success: false, message: "Unauthorized" });
+    return res.status(401).send(`<h2 style="font-family:sans-serif;color:red;text-align:center;margin-top:80px">⛔ Unauthorized</h2>`);
   }
   try {
     const users = await User.find({}).sort({ createdAt: -1 });
     const reviews = await Review.find({}).sort({ createdAt: -1 });
-    res.json({ success: true, users, reviews });
+
+    const fmt = (d) => new Date(d).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' });
+
+    const userRows = users.map(u => `
+      <tr>
+        <td>${u.username}</td>
+        <td>${fmt(u.createdAt)}</td>
+      </tr>`).join('');
+
+    const reviewRows = reviews.map(r => `
+      <tr>
+        <td>${r.name}</td>
+        <td style="max-width:400px">${r.message}</td>
+        <td>${r.replies.length}</td>
+        <td>${r.reports.length}</td>
+        <td>${fmt(r.createdAt)}</td>
+      </tr>`).join('');
+
+    res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Dashboard – Daffodils 2082</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #333; padding: 20px; }
+  h1 { text-align: center; margin-bottom: 30px; color: #2c3e50; font-size: 1.8rem; }
+  h2 { margin: 30px 0 12px; color: #34495e; font-size: 1.2rem; border-left: 4px solid #3498db; padding-left: 10px; }
+  .stats { display: flex; gap: 20px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap; }
+  .stat { background: #fff; border-radius: 10px; padding: 20px 30px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+  .stat .num { font-size: 2rem; font-weight: bold; color: #3498db; }
+  .stat .label { font-size: .85rem; color: #888; margin-top: 4px; }
+  .table-wrap { overflow-x: auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.08); margin-bottom: 30px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #3498db; color: #fff; padding: 12px 16px; text-align: left; font-size: .85rem; text-transform: uppercase; letter-spacing: .5px; }
+  td { padding: 10px 16px; border-bottom: 1px solid #f0f0f0; font-size: .9rem; vertical-align: top; word-break: break-word; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f8f9fa; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: .75rem; font-weight: 600; }
+  .badge-blue { background: #dbeafe; color: #1d4ed8; }
+  .badge-red { background: #fee2e2; color: #b91c1c; }
+</style>
+</head>
+<body>
+<h1>🌸 Daffodils 2082 – Admin Dashboard</h1>
+<div class="stats">
+  <div class="stat"><div class="num">${users.length}</div><div class="label">Total Users</div></div>
+  <div class="stat"><div class="num">${reviews.length}</div><div class="label">Total Reviews</div></div>
+  <div class="stat"><div class="num">${reviews.reduce((a,r)=>a+r.replies.length,0)}</div><div class="label">Total Replies</div></div>
+  <div class="stat"><div class="num">${reviews.reduce((a,r)=>a+r.reports.length,0)}</div><div class="label">Total Reports</div></div>
+</div>
+
+<h2>👤 Registered Users (${users.length})</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Username</th><th>Signed Up At</th></tr></thead>
+  <tbody>${userRows}</tbody>
+</table>
+</div>
+
+<h2>💬 Reviews (${reviews.length})</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Name</th><th>Message</th><th>Replies</th><th>Reports</th><th>Posted At</th></tr></thead>
+  <tbody>${reviewRows}</tbody>
+</table>
+</div>
+</body>
+</html>`);
   } catch (err) {
     console.error("Admin data error:", err);
-    res.status(500).json({ success: false, message: "Failed to fetch data" });
+    res.status(500).send('<h2>Server error</h2>');
   }
 });
 
