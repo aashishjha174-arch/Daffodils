@@ -12,7 +12,17 @@ const User = require('./models/user');
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://daffodils-2082.netlify.app',
+    'http://localhost:3000',
+    'http://127.0.0.1:5500'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+app.options('*', cors());
 app.use(express.json());
 
 // Ping endpoint – keeps Render service alive via cron-job.org
