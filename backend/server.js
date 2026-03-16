@@ -500,6 +500,24 @@ app.delete('/reviews/:id', async (req, res) => {
   }
 });
 
+// ────────────────────────────────────────────────
+// ADMIN DATA – view all users & reviews
+// ────────────────────────────────────────────────
+app.get('/admin/data', async (req, res) => {
+  const key = req.query.key || req.headers['x-admin-key'];
+  if (!process.env.ADMIN_KEY || key !== process.env.ADMIN_KEY) {
+    return res.status(401).json({ success: false, message: "Unauthorized" });
+  }
+  try {
+    const users = await User.find({}).sort({ createdAt: -1 });
+    const reviews = await Review.find({}).sort({ createdAt: -1 });
+    res.json({ success: true, users, reviews });
+  } catch (err) {
+    console.error("Admin data error:", err);
+    res.status(500).json({ success: false, message: "Failed to fetch data" });
+  }
+});
+
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
