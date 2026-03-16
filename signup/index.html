@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Daffodils Public School | Sign Up</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Favicon -->
+  <link rel="icon" href="images/logo.webp">
+  <link rel="apple-touch-icon" href="images/logo.webp">
+
+  <!-- Fonts & icons -->
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+  <!-- Your CSS -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Background and overlay -->
+  <style>
+    body {
+      min-height: 100vh;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: background-image 1.5s ease-in-out;
+      position: relative;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: -1;
+    }
+    #particles-js {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+      top: 0;
+      left: 0;
+    }
+    
+    /* Modal Styles */
+    .custom-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .modal-content {
+      background: rgba(30, 30, 40, 0.98);
+      border: 2px solid #d4af37;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 450px;
+      width: 90%;
+      position: relative;
+      color: #fff;
+      box-shadow: 0 0 40px rgba(212, 175, 55, 0.4);
+      animation: modalPop 0.3s ease-out;
+    }
+    
+    @keyframes modalPop {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 32px;
+      cursor: pointer;
+      color: #d4af37;
+      transition: 0.3s;
+      line-height: 1;
+    }
+    
+    .modal-close:hover {
+      transform: scale(1.2);
+      color: #ffaa00;
+    }
+    
+    .modal-icon {
+      font-size: 48px;
+      color: #d4af37;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    
+    .modal-title {
+      color: #d4af37;
+      font-size: 24px;
+      margin-bottom: 15px;
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+    }
+    
+    .modal-body {
+      margin-bottom: 20px;
+      text-align: center;
+      line-height: 1.6;
+      font-size: 16px;
+    }
+    
+    .modal-body a {
+      color: #d4af37;
+      font-weight: bold;
+      text-decoration: underline;
+    }
+    
+    .modal-footer {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+    
+    .modal-btn {
+      padding: 10px 30px;
+      border-radius: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      transition: 0.3s;
+      font-size: 16px;
+    }
+    
+    .modal-btn-primary {
+      background: #d4af37;
+      color: #000;
+    }
+    
+    .modal-btn-primary:hover {
+      background: #c9a22b;
+      transform: scale(1.05);
+    }
+    
+    /* Terms checkbox animation */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+      20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+    
+    .terms-error {
+      animation: shake 0.5s ease-in-out;
+    }
+    
+    .terms-error .checkbox-wrap {
+      color: #ff4444 !important;
+    }
+    
+    .terms-error .checkmark {
+      border-color: #ff4444 !important;
+      background: rgba(255, 68, 68, 0.1);
+    }
+    
+    .checkbox-wrap {
+      transition: color 0.3s;
+    }
+    
+    .checkmark {
+      transition: border-color 0.3s, background 0.3s;
+    }
+  </style>
+</head>
+<body class="img js-fullheight">
+
+<div id="particles-js"></div>
+
+<!-- Custom Modal for Username Taken -->
+<div id="usernameTakenModal" class="custom-modal">
+  <div class="modal-content">
+    <span class="modal-close" onclick="closeModal('usernameTakenModal')">&times;</span>
+    <div class="modal-icon">⚠️</div>
+    <div class="modal-title">Username Already Taken</div>
+    <div class="modal-body">
+      <p>The username you entered is already taken.</p>
+      <p>If this is your username, please <a href="login.html">click here to login</a>.</p>
+      <p>If you forgot your username, try using your real name or add numbers.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-primary" onclick="closeModal('usernameTakenModal')">Got It</button>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Modal for Server Error -->
+<div id="serverErrorModal" class="custom-modal">
+  <div class="modal-content">
+    <span class="modal-close" onclick="closeModal('serverErrorModal')">&times;</span>
+    <div class="modal-icon">❌</div>
+    <div class="modal-title">Server Error</div>
+    <div class="modal-body">
+      <p>Something went wrong. Please try again later.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-primary" onclick="closeModal('serverErrorModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<section class="ftco-section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6 text-center mb-5">
+        <h2 class="heading-section text-white">DAFFODILS PUBLIC SCHOOL</h2>
+      </div>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-4">
+        <div class="login-wrap p-4">
+          <h3 class="mb-4 text-center text-white">Create an account</h3>
+
+          <form id="signupForm" class="signin-form">
+            <div class="form-group">
+              <input type="text" id="username" class="form-control" placeholder="Username" required>
+            </div>
+
+            <div class="form-group" id="termsContainer">
+              <label class="checkbox-wrap text-white">
+                I agree to the <a href="terms.html" target="_blank" class="text-white font-weight-bold" style="text-decoration: underline;">Terms & Conditions</a>
+               
+                <input type="checkbox" id="terms" required>
+                <span class="checkmark"></span>
+              </label>
+               If not agreed terms and conditions, site will not load...
+            </div>
+            
+            <div class="form-group">
+              <button type="submit" class="form-control btn btn-primary submit px-3">
+                Sign Up
+              </button>
+            </div>
+          </form>
+
+          <p class="w-100 text-center text-white mt-3">
+            Already have an account? <a href="login.html" class="text-white font-weight-bold">Log In</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Background Slideshow -->
+<script>
+  const images = ["images/bg.webp", "images/bg2.webp", "images/bg3.webp", "images/sample2.webp"];
+  let index = 0;
+  function changeBackground() {
+    document.body.style.backgroundImage = `url('${images[index]}')`;
+    index = (index + 1) % images.length;
+  }
+  changeBackground();
+  setInterval(changeBackground, 5000);
+</script>
+
+<script>
+const BASE_URL = "https://daffodils-1.onrender.com"; // Your Render URL
+
+// Modal functions
+function showModal(modalId) {
+  document.getElementById(modalId).style.display = 'flex';
+}
+
+function closeModal(modalId) {
+  document.getElementById(modalId).style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+  if (event.target.classList.contains('custom-modal')) {
+    event.target.style.display = 'none';
+  }
+}
+
+// Terms and conditions vibration
+function shakeTerms() {
+  const termsContainer = document.getElementById('termsContainer');
+  termsContainer.classList.add('terms-error');
+  
+  // Remove the class after animation completes
+  setTimeout(() => {
+    termsContainer.classList.remove('terms-error');
+  }, 500);
+}
+
+// Signup form submission
+document.getElementById('signupForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const username = document.getElementById('username').value.trim();
+  const terms = document.getElementById('terms').checked;
+
+  // Check terms first with vibration
+  if (!terms) {
+    shakeTerms();
+    return;
+  }
+
+  if (!username) {
+    alert('Username is required');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${BASE_URL}/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username })
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      if (data.message === "Username already taken") {
+        showModal('usernameTakenModal');
+      } else {
+        // Show server error modal for other errors
+        showModal('serverErrorModal');
+      }
+      return;
+    }
+
+    // AUTO LOGIN
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("username", data.username);
+
+    window.location.href = "load.html";
+
+  } catch (err) {
+    console.error("Signup error:", err);
+    showModal('serverErrorModal');
+  }
+});
+
+// Add event listener to remove terms error when checkbox is clicked
+document.getElementById('terms').addEventListener('change', function() {
+  if (this.checked) {
+    document.getElementById('termsContainer').classList.remove('terms-error');
+  }
+});
+
+// Also remove error when user starts typing in username field
+document.getElementById('username').addEventListener('input', function() {
+  // Optional: you can add any username validation feedback here
+});
+</script>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Particles.js -->
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+<script>
+  particlesJS("particles-js", {
+    "particles": {
+      "number": { "value": 60 },
+      "color": { "value": "#ffffff" },
+      "shape": { "type": "circle" },
+      "opacity": { "value": 0.5 },
+      "size": { "value": 3 },
+      "line_linked": { "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.4, "width": 1 },
+      "move": { "enable": true, "speed": 2 }
+    },
+    "interactivity": {
+      "detect_on": "canvas",
+      "events": { "onhover": { "enable": true, "mode": "repulse" } }
+    },
+    "retina_detect": true
+  });
+</script>
+
+</body>
+</html>
